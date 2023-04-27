@@ -1,12 +1,13 @@
 import os
 from typing import Tuple, List
+import logging
 import xml.etree.ElementTree as ET
 import numpy as np
 from cv2 import cv2
-from Particle import Particle
+from Particle import Particle, SNR, Density
 
 PATH_GTH = "./Dataset/Challenge/ground_truth"
-PATH_SLICES = "./Dataset/Challenge/VIRUS"
+PATH_IMG = "./Dataset/Challenge/VIRUS"
 
 
 def create_video(dts_path: str):
@@ -15,6 +16,7 @@ def create_video(dts_path: str):
     :param dts_path:
     :return:
     """
+    if not os.path.exists(dts_path): return
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
     out = cv2.VideoWriter("video.mp4", fourcc, fps=15, size=(512, 512))
     for frame_name in os.listdir(dts_path):
@@ -28,6 +30,7 @@ def extract_particles(xml: str) -> List[Particle]:
     :param xml: file gth
     :return: list of detected particles
     """
+    if not os.path.isfile(xml): return []
     particles = []
     tree = ET.parse(xml)
     root = tree.getroot()
@@ -71,6 +74,7 @@ def draw_particles(particles: List[Particle], frame: np.ndarray) -> np.ndarray:
     :param frame:
     :return: frame with drawed particles
     """
+    if not particles: return frame
     for particle in particles:
         x = round(particle.x)
         y = round(particle.y)
@@ -79,10 +83,9 @@ def draw_particles(particles: List[Particle], frame: np.ndarray) -> np.ndarray:
     return frame
 
 
-def draw_particles_at(path: str, snr: int, t: int, depth: int, density: int) -> np.ndarray:
+def draw_particles_at(snr: SNR, t: int, depth: int, density: Density) -> np.ndarray:
     """Draw particles with criteria to select slice
 
-    :param path:
     :param snr:
     :param t:
     :param depth:
@@ -91,4 +94,17 @@ def draw_particles_at(path: str, snr: int, t: int, depth: int, density: int) -> 
     """
     # TODO extract image with snr and density
     # TODO select interval by depth
-    pass
+
+    # compute paths
+    path = os.path.join(PATH_GTH, f'VIRUS_{snr}_{density}')
+    path_file_gth = f'{path}.xml'
+    path_file_img = os.path.join(PATH_IMG, path, f'{path}_t{str(t).zfill(3)}_z{str(depth).zfill(2)}.tif')
+
+    # depth =< z < z+1
+    particles = extract_particles(path_file_gth)
+    particles = query_particles(particles, t=t, z=depth) # FIXME for criteria
+
+    # select img
+    frame = cv2.imread(path_file_img)
+    img = draw_particles(particles, frame)
+    return img
