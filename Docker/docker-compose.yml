@@ -1,0 +1,44 @@
+services:
+  torch:
+    container_name: torch
+
+    # interactive flag
+    stdin_open: true
+    tty: true
+
+    # building
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    working_dir: '/src'
+    
+    # gpu
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    
+    # env for gpu
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIESA=all
+
+  jupy:
+    container_name: jupy
+
+    # building
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    # service
+    command: jupyter notebook --port=8888 --no-browser --ip=0.0.0.0 --allow-root
+    ports:
+      - 8888:8888
+    network_mode: 'host'
+
