@@ -130,4 +130,5 @@ cython_debug/
 .idea/
 
 # Our Project
-/Dataset
+/Dataset/*
+!Dataset/install_dataset.sh
