@@ -18,6 +18,6 @@ class SNR(Enum):
     TYPE_7 = 'snr_7'
 
 class Density(Enum):
-    HIGH = 'high'
-    MID = 'mid'
-    LOW = 'low'
+    HIGH = 'density_high'
+    MID = 'density_mid'
+    LOW = 'density_low'
