@@ -9,17 +9,20 @@ Directories layout:
 ```
 particle-ViT-segmentation
 ├── Dataset
-│   ├── Challange
+│   ├── Challenge
 │   │   ├── ground_truth
 │   │   └── VIRUS
 │   └── install_dataset.sh
 ├── Docker
-│   ├── Dockerfile
-│   └── docker-compose.yaml
+│   ├── docker-compose.yml
+│   └── Dockerfile
 ├── docs
 │   └── nmeth.2808.pdf
 ├── main.py
 ├── preprocessing
+│   ├── analyser.py
+│   ├── __init__.py
+│   └── Particle.py
 ├── README.md
 ├── techniques
 │   ├── README.md
@@ -31,6 +34,8 @@ particle-ViT-segmentation
 │       ├── include
 │       ├── main.py
 │       └── src
+├── utils
+│   └── logger.py
 └── verify_requirements.sh
 ```
 
