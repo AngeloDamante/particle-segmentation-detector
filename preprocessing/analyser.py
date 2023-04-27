@@ -79,4 +79,16 @@ def draw_particles(particles: List[Particle], frame: np.ndarray) -> np.ndarray:
     return frame
 
 
+def draw_particles_at(path: str, snr: int, t: int, depth: int, density: int) -> np.ndarray:
+    """Draw particles with criteria to select slice
 
+    :param path:
+    :param snr:
+    :param t:
+    :param depth:
+    :param density:
+    :return:
+    """
+    # TODO extract image with snr and density
+    # TODO select interval by depth
+    pass
