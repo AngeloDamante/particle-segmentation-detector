@@ -1,13 +1,13 @@
 import os
-from typing import Tuple, List
+from typing import Tuple, List, Callable
 import logging
 import xml.etree.ElementTree as ET
 import numpy as np
 from cv2 import cv2
 from Particle import Particle, SNR, Density
 
-PATH_GTH = "./Dataset/Challenge/ground_truth"
-PATH_IMG = "./Dataset/Challenge/VIRUS"
+PATH_GTH = "../Dataset/Challenge/ground_truth"
+PATH_IMG = "../Dataset/Challenge/VIRUS"
 
 
 def create_video(dts_path: str):
@@ -108,3 +108,4 @@ def draw_particles_at(snr: SNR, t: int, depth: int, density: Density) -> np.ndar
     frame = cv2.imread(path_file_img)
     img = draw_particles(particles, frame)
     return img
+
