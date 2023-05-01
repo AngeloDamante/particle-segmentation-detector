@@ -4,7 +4,7 @@ import logging
 import xml.etree.ElementTree as ET
 import numpy as np
 from cv2 import cv2
-from Particle import Particle, SNR, Density
+from preprocessing.Particle import Particle, SNR, Density
 
 PATH_GTH = "../Dataset/Challenge/ground_truth"
 PATH_IMG = "../Dataset/Challenge/VIRUS"
@@ -41,29 +41,14 @@ def extract_particles(xml: str) -> List[Particle]:
     return particles
 
 
-def query_particles(particles: List[Particle],
-                    t: int = None,
-                    x: float = None,
-                    y: float = None,
-                    z: float = None) -> List[Particle]:
-    """Get particles with criteria
+def query_particles(particles: List[Particle], criteria: Callable[[Particle], int]):
+    """Query on given input particles
 
-    :param particles: list of particles
-    :param t: desired t (None)
-    :param x: desired x (None)
-    :param y: desired y (None)
-    :param z: desired z (None)
-    :return: list of particles that satisfies criteria
+    :param particles:
+    :param criteria:
+    :return: particles that respect a certain input criteria
     """
-    particles_criteria = []
-    if t is not None:
-        particles_criteria = [particle for particle in particles if particle.t == t]
-    if x is not None:
-        particles_criteria = [particle for particle in particles if particle.x == x]
-    if y is not None:
-        particles_criteria = [particle for particle in particles if particle.y == y]
-    if z is not None:
-        particles_criteria = [particle for particle in particles if particle.z == z]
+    particles_criteria = [particle for particle in particles if criteria(particle)]
     return particles_criteria
 
 
@@ -74,16 +59,17 @@ def draw_particles(particles: List[Particle], frame: np.ndarray) -> np.ndarray:
     :param frame:
     :return: frame with drawed particles
     """
+    if frame is None: return 255 * np.ones((512, 512, 3), np.uint8)
     if not particles: return frame
     for particle in particles:
         x = round(particle.x)
         y = round(particle.y)
         cv2.circle(frame, (int(x), int(y)), 1, (60, 20, 220))
-        cv2.putText(frame, text=particle.z, org=(x, y), fontFace=cv2.FONT_ITALIC, fontScale=0.4, color=(0, 255, 0))
+        cv2.putText(frame, text=str(particle.z), org=(x, y), fontFace=cv2.FONT_ITALIC, fontScale=0.4, color=(0, 255, 0))
     return frame
 
 
-def draw_particles_at(snr: SNR, t: int, depth: int, density: Density) -> np.ndarray:
+def draw_particles_slice(snr: SNR, t: int, depth: int, density: Density) -> Tuple[np.ndarray, List[Particle]]:
     """Draw particles with criteria to select slice
 
     :param snr:
@@ -92,20 +78,16 @@ def draw_particles_at(snr: SNR, t: int, depth: int, density: Density) -> np.ndar
     :param density:
     :return:
     """
-    # TODO extract image with snr and density
-    # TODO select interval by depth
-
     # compute paths
-    path = os.path.join(PATH_GTH, f'VIRUS_{snr}_{density}')
-    path_file_gth = f'{path}.xml'
-    path_file_img = os.path.join(PATH_IMG, path, f'{path}_t{str(t).zfill(3)}_z{str(depth).zfill(2)}.tif')
+    name = f'VIRUS_{snr.value}_{density.value}'
+    path_file_gth = os.path.join(PATH_GTH, f'{name}.xml')
+    path_file_img = os.path.join(PATH_IMG, name, f'{name}_t{str(t).zfill(3)}_z{str(depth).zfill(2)}.tif')
 
     # depth =< z < z+1
     particles = extract_particles(path_file_gth)
-    particles = query_particles(particles, t=t, z=depth) # FIXME for criteria
+    particles = query_particles(particles, (lambda p: True if (depth + 1 > p.z >= depth and p.t == t) else False))
 
     # select img
-    frame = cv2.imread(path_file_img)
-    img = draw_particles(particles, frame)
-    return img
-
+    img = cv2.imread(path_file_img)
+    if particles: img = draw_particles(particles, img.copy())
+    return img, particles
