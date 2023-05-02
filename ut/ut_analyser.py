@@ -3,6 +3,7 @@ import os
 from cv2 import cv2
 from preprocessing.analyser import PATH_GTH, PATH_IMG
 from preprocessing.analyser import extract_particles, query_particles, draw_particles, draw_particles_slice
+from preprocessing.analyser import compute_paths
 from preprocessing.Particle import Particle, SNR, Density
 from typing import Tuple, List
 
@@ -35,23 +36,15 @@ class PreprocessingUT(unittest.TestCase):
         cv2.imwrite("img_test.png", frame)
 
     def test_select_slice(self):
-        # requirements
-        snr = SNR.TYPE_7
-        density = Density.LOW
-        depth = 1
-        t = 2
+        # identifying tuple
+        idx = (SNR.TYPE_7, Density.LOW, 1, 2)
+        path_file_gth, path_file_img = compute_paths(*idx)
 
-        # make name and paths
-        name = f'VIRUS_{snr.value}_{density.value}'
-        path_file_gth = os.path.join(PATH_GTH, f'{name}.xml')
-        path_file_img = os.path.join(PATH_IMG, name, f'{name}_t{str(t).zfill(3)}_z{str(depth).zfill(2)}.tif')
-
-        # ut
         self.assertTrue(os.path.isfile(path_file_img))
         self.assertTrue(os.path.isfile(path_file_gth))
 
     def test_draw_particles_slice(self):
-        snr, t, depth, density = SNR.TYPE_7, 0, 1, Density.LOW
+        snr, t, depth, density = SNR.TYPE_7, 0, 8, Density.LOW
         img, self.my_particles = draw_particles_slice(snr, t, depth, density)
         self.assertTrue(self.my_particles)
         cv2.imwrite("slice_test.png", img)
