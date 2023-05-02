@@ -1,3 +1,5 @@
+""" Utils Function to implement preprocessing phase """
+
 import os
 from typing import Tuple, List, Callable
 import logging
@@ -9,6 +11,19 @@ from preprocessing.Particle import Particle, SNR, Density
 PATH_GTH = "../Dataset/Challenge/ground_truth"
 PATH_IMG = "../Dataset/Challenge/VIRUS"
 
+def compute_paths(snr: SNR, density: Density, t: int, depth: int) -> Tuple[str, str]:
+    """Compute paths for identifying tuple(snr, density, t, depth)
+
+    :param snr:
+    :param density:
+    :param t:
+    :param depth:
+    :return:
+    """
+    name = f'VIRUS_{snr.value}_{density.value}'
+    path_file_gth = os.path.join(PATH_GTH, f'{name}.xml')
+    path_file_img = os.path.join(PATH_IMG, name, f'{name}_t{str(t).zfill(3)}_z{str(depth).zfill(2)}.tif')
+    return path_file_gth, path_file_img
 
 def create_video(dts_path: str):
     """Create Video from files (slices)
@@ -79,17 +94,13 @@ def draw_particles_slice(snr: SNR, t: int, depth: int, density: Density, eps: fl
     :param eps:
     :return:
     """
-    # compute paths
-    name = f'VIRUS_{snr.value}_{density.value}'
-    path_file_gth = os.path.join(PATH_GTH, f'{name}.xml')
-    path_file_img = os.path.join(PATH_IMG, name, f'{name}_t{str(t).zfill(3)}_z{str(depth).zfill(2)}.tif')
-    print(path_file_img)
+    path_gth, path_img = compute_paths(snr, density, t, depth)
 
-    # depth =< z < z+1
-    particles = extract_particles(path_file_gth)
-    particles = query_particles(particles, (lambda p: True if ((depth+eps > p.z >= depth-eps) and p.t == t) else False))
+    # depth - eps =< z < depth + eps
+    particles = extract_particles(path_gth)
+    particles = query_particles(particles, (lambda p: True if ((depth + eps > p.z >= depth - eps) and p.t == t) else False))
 
     # select img
-    img = cv2.imread(path_file_img)
+    img = cv2.imread(path_img)
     if particles: img = draw_particles(particles, img.copy())
     return img, particles
