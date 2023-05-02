@@ -69,23 +69,25 @@ def draw_particles(particles: List[Particle], frame: np.ndarray) -> np.ndarray:
     return frame
 
 
-def draw_particles_slice(snr: SNR, t: int, depth: int, density: Density) -> Tuple[np.ndarray, List[Particle]]:
+def draw_particles_slice(snr: SNR, t: int, depth: int, density: Density, eps: float = 2.0) -> Tuple[np.ndarray, List[Particle]]:
     """Draw particles with criteria to select slice
 
     :param snr:
     :param t:
     :param depth:
     :param density:
+    :param eps:
     :return:
     """
     # compute paths
     name = f'VIRUS_{snr.value}_{density.value}'
     path_file_gth = os.path.join(PATH_GTH, f'{name}.xml')
     path_file_img = os.path.join(PATH_IMG, name, f'{name}_t{str(t).zfill(3)}_z{str(depth).zfill(2)}.tif')
+    print(path_file_img)
 
     # depth =< z < z+1
     particles = extract_particles(path_file_gth)
-    particles = query_particles(particles, (lambda p: True if (depth + 1 > p.z >= depth and p.t == t) else False))
+    particles = query_particles(particles, (lambda p: True if ((depth+eps > p.z >= depth-eps) and p.t == t) else False))
 
     # select img
     img = cv2.imread(path_file_img)
