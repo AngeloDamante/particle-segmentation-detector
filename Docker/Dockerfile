@@ -30,4 +30,5 @@ RUN apt-get update && pip3 install numpy \
 	&& pip3 install pandas \
 	&& pip3 install ipython \
 	&& pip3 install jupyter \
-	&& pip3 install tqdm
+	&& pip3 install tqdm \
+	&& pip3 install elementpath
