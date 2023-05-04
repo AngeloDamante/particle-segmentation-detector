@@ -20,7 +20,7 @@ seg_map = torch.zeros(size=size, dtype=torch.uint8)
 particles = extract_particles(f'{PATH_GTH}/VIRUS_snr_7_density_low.xml')
 particles_t0 = query_particles(particles, (lambda pa: True if pa.t == 0 else False))
 
-# put spheres
+# put disks
 for p in particles_t0:
     seg_map[round(p.x), round(p.y), np.clip(round(p.z), 0, 9)] = 255
 
@@ -38,12 +38,25 @@ print(img_3d.shape)
 particles = extract_particles(f'{PATH_GTH}/VIRUS_snr_7_density_low.xml')
 particles_t0 = query_particles(particles, (lambda pa: True if pa.t == 0 else False))
 
+# at this point: img_3d, detected_particles for img_3d
+
 # analyse
-img_3d_t0 = img_3d.copy()
+# img_3d_t0 = img_3d.copy()
+img_3d_t0 = np.zeros_like(img_3d)
+x, y, z = np.meshgrid(np.arange(img_3d_t0.shape[0]), np.arange(img_3d_t0.shape[1]), np.arange(img_3d_t0.shape[2]))
+
+# for p in particles_t0:
+#     x, y, z = round(p.x), round(p.y), np.clip(round(p.z), 0, 9)
+#     img_3d_t0[x, y, z] = 255
+#     img_3d_t0[:,:,z] = cv2.circle(img_3d_t0[:,:,z].astype(np.uint8), center=(x,y), radius=4, color=(254,254,254), thickness=cv2.FILLED)
+
+# TODO: centro luminoso e il resto meno
+radius = 2
 for p in particles_t0:
-    x, y, z = round(p.x), round(p.y), np.clip(round(p.z), 0, 9)
-    img_3d_t0[x, y, z] = 255
-    img_3d_t0[:,:,z] = cv2.circle(img_3d_t0[:,:,z].astype(np.uint8), center=(x,y), radius=2, color=(255,255,255), thickness=cv2.FILLED)
+    center = (round(p.x), round(p.y), np.clip(round(p.z), 0, 9))
+    distance = np.sqrt((x - center[0]) ** 2 + (y - center[1]) ** 2 + (z - center[2]) ** 2)
+    mask = (distance <= radius)
+    img_3d_t0[mask] = 255
 
 # comparison
 plt.figure()
@@ -56,4 +69,6 @@ for j in range(4):
     plt.title(f'seg {j}')
     plt.imshow(Image.fromarray(img_3d_t0[:, :, j]), cmap="gray")
 plt.savefig("comparison.png")
+
+print(f'num_particles_t0 = {len(particles_t0)}, num_elements = {np.count_nonzero(img_3d_t0 == 255)}')
 # FIX!! non li carica in ordine, forse
