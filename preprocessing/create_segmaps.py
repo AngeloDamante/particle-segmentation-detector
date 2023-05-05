@@ -50,13 +50,13 @@ x, y, z = np.meshgrid(np.arange(img_3d_t0.shape[0]), np.arange(img_3d_t0.shape[1
 #     img_3d_t0[x, y, z] = 255
 #     img_3d_t0[:,:,z] = cv2.circle(img_3d_t0[:,:,z].astype(np.uint8), center=(x,y), radius=4, color=(254,254,254), thickness=cv2.FILLED)
 
-# TODO: centro luminoso e il resto meno
 radius = 2
 for p in particles_t0:
     center = (round(p.x), round(p.y), np.clip(round(p.z), 0, 9))
     distance = np.sqrt((x - center[0]) ** 2 + (y - center[1]) ** 2 + (z - center[2]) ** 2)
     mask = (distance <= radius)
-    img_3d_t0[mask] = 255
+    img_3d_t0[mask] = 254
+    img_3d_t0[center[0], center[1], center[2]] = 255
 
 # comparison
 plt.figure()
