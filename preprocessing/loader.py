@@ -5,7 +5,7 @@ import torch
 from torchvision import transforms
 from PIL import Image
 from preprocessing.Particle import Particle, SNR, Density
-from preprocessing.analyser import compute_paths
+from preprocessing.analyser import get_img_path
 
 def get_slice(snr: SNR, density: Density, t: int, depth: int) -> Image:
     """Get image from identifying tuple
@@ -17,7 +17,7 @@ def get_slice(snr: SNR, density: Density, t: int, depth: int) -> Image:
     :return: PIL image
     """
     idx = (snr, density, t, depth)
-    _, path_file_img = compute_paths(*idx)
+    path_file_img = get_img_path(*idx)
 
     # load image
     img = Image.open(path_file_img)

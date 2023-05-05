@@ -3,7 +3,7 @@ import os
 from cv2 import cv2
 from preprocessing.analyser import PATH_GTH, PATH_IMG
 from preprocessing.analyser import extract_particles, query_particles, draw_particles, draw_particles_slice
-from preprocessing.analyser import compute_paths
+from preprocessing.analyser import get_gth_path, get_img_path
 from preprocessing.Particle import Particle, SNR, Density
 from typing import Tuple, List
 
@@ -38,7 +38,8 @@ class PreprocessingUT(unittest.TestCase):
     def test_select_slice(self):
         # identifying tuple
         idx = (SNR.TYPE_7, Density.LOW, 1, 2)
-        path_file_gth, path_file_img = compute_paths(*idx)
+        path_file_img = get_img_path(*idx)
+        path_file_gth = get_gth_path(idx[0], idx[1])
 
         self.assertTrue(os.path.isfile(path_file_img))
         self.assertTrue(os.path.isfile(path_file_gth))

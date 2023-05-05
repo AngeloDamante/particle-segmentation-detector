@@ -11,19 +11,29 @@ from preprocessing.Particle import Particle, SNR, Density
 PATH_GTH = "../Dataset/Challenge/ground_truth"
 PATH_IMG = "../Dataset/Challenge/VIRUS"
 
-def compute_paths(snr: SNR, density: Density, t: int, depth: int) -> Tuple[str, str]:
-    """Compute paths for identifying tuple(snr, density, t, depth)
+def get_img_path(snr: SNR, density: Density, t: int, depth: int) -> str:
+    """Compute slice path for identifying tuple(snr, density, t, depth)
 
     :param snr:
     :param density:
     :param t:
     :param depth:
-    :return:
+    :return: path
+    """
+    name = f'VIRUS_{snr.value}_{density.value}'
+    path_file_img = os.path.join(PATH_IMG, name, f'{name}_t{str(t).zfill(3)}_z{str(depth).zfill(2)}.tif')
+    return path_file_img
+
+def get_gth_path(snr: SNR, density: Density) -> str:
+    """Compute path for file.xml with gth
+
+    :param snr:
+    :param density:
+    :return: path
     """
     name = f'VIRUS_{snr.value}_{density.value}'
     path_file_gth = os.path.join(PATH_GTH, f'{name}.xml')
-    path_file_img = os.path.join(PATH_IMG, name, f'{name}_t{str(t).zfill(3)}_z{str(depth).zfill(2)}.tif')
-    return path_file_gth, path_file_img
+    return path_file_gth
 
 def create_video(dts_path: str):
     """Create Video from files (slices)
@@ -94,7 +104,8 @@ def draw_particles_slice(snr: SNR, t: int, depth: int, density: Density, eps: fl
     :param eps:
     :return:
     """
-    path_gth, path_img = compute_paths(snr, density, t, depth)
+    path_img = get_img_path(snr, density, t, depth)
+    path_gth = get_gth_path(snr, density)
 
     # depth - eps =< z < depth + eps
     particles = extract_particles(path_gth)
