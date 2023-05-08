@@ -2,14 +2,12 @@
 
 import os
 from typing import Tuple, List, Callable
-import logging
-import xml.etree.ElementTree as ET
 import numpy as np
 from cv2 import cv2
+import xml.etree.ElementTree as ET
 from preprocessing.Particle import Particle, SNR, Density
+from utils.definitions import DTS_VIRUS, DTS_GTH
 
-PATH_GTH = "../Dataset/Challenge/ground_truth"
-PATH_IMG = "../Dataset/Challenge/VIRUS"
 
 def get_img_path(snr: SNR, density: Density, t: int, depth: int) -> str:
     """Compute slice path for identifying tuple(snr, density, t, depth)
@@ -21,8 +19,9 @@ def get_img_path(snr: SNR, density: Density, t: int, depth: int) -> str:
     :return: path
     """
     name = f'VIRUS_{snr.value}_{density.value}'
-    path_file_img = os.path.join(PATH_IMG, name, f'{name}_t{str(t).zfill(3)}_z{str(depth).zfill(2)}.tif')
+    path_file_img = os.path.join(DTS_VIRUS, name, f'{name}_t{str(t).zfill(3)}_z{str(depth).zfill(2)}.tif')
     return path_file_img
+
 
 def get_gth_path(snr: SNR, density: Density) -> str:
     """Compute path for file.xml with gth
@@ -32,8 +31,9 @@ def get_gth_path(snr: SNR, density: Density) -> str:
     :return: path
     """
     name = f'VIRUS_{snr.value}_{density.value}'
-    path_file_gth = os.path.join(PATH_GTH, f'{name}.xml')
+    path_file_gth = os.path.join(DTS_GTH, f'{name}.xml')
     return path_file_gth
+
 
 def create_video(dts_path: str):
     """Create Video from files (slices)
@@ -94,7 +94,8 @@ def draw_particles(particles: List[Particle], frame: np.ndarray) -> np.ndarray:
     return frame
 
 
-def draw_particles_slice(snr: SNR, t: int, depth: int, density: Density, eps: float = 2.0) -> Tuple[np.ndarray, List[Particle]]:
+def draw_particles_slice(snr: SNR, t: int, depth: int, density: Density, eps: float = 2.0) -> Tuple[
+    np.ndarray, List[Particle]]:
     """Draw particles with criteria to select slice
 
     :param snr:
@@ -109,7 +110,8 @@ def draw_particles_slice(snr: SNR, t: int, depth: int, density: Density, eps: fl
 
     # depth - eps =< z < depth + eps
     particles = extract_particles(path_gth)
-    particles = query_particles(particles, (lambda p: True if ((depth + eps > p.z >= depth - eps) and p.t == t) else False))
+    particles = query_particles(particles,
+                                (lambda p: True if ((depth + eps > p.z >= depth - eps) and p.t == t) else False))
 
     # select img
     img = cv2.imread(path_img)

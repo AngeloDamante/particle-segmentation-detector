@@ -1,17 +1,17 @@
 import os
+import cv2
 from PIL import Image
 import torch
+import numpy as np
+from tqdm import tqdm
+import matplotlib.pyplot as plt
 from torchvision.utils import save_image
 import torch.nn.functional as F
-from preprocessing.analyser import PATH_GTH, PATH_IMG
 from preprocessing.analyser import extract_particles, query_particles, get_img_path, get_gth_path
 from preprocessing.loader import get_slice
 from preprocessing.Particle import Particle, SNR, Density
-import numpy as np
-import matplotlib.pyplot as plt
-from tqdm import tqdm
+from utils.definitions import DTS_SEG_1
 
-PATH_DTS_1 = "../Dataset/seg_technique_1"
 SIZE_VOL = (512, 512, 10)
 
 
@@ -47,11 +47,19 @@ def make_segmaps_with_spheres(snr: SNR, density: Density, radius: int = 1, value
             img_3d[mask] = value
 
         # save slices
-        directory = f'{PATH_DTS_1}/segVirus_{snr.value}_{str(density.value)}'
-        if not (os.path.isdir(directory)): os.mkdir(directory)
+        dir_name = f'segVirus_{snr.value}_{str(density.value)}'
+        target_path = os.path.join(f'{DTS_SEG_1}', dir_name)
+        if not (os.path.isdir(target_path)): os.mkdir(target_path)
         for depth in range(10):
-            img = Image.fromarray(img_3d[:, :, depth])
-            img.save(f'{directory}/t_{str(time).zfill(3)}_z_{str(depth).zfill(2)}.tif')
+            img_name = f't_{str(time).zfill(3)}_z_{str(depth).zfill(2)}.tiff'
+
+            # cv2
+            img = img_3d[:, :, depth]
+            cv2.imwrite(os.path.join(target_path, img_name), img)
+
+            # pil
+            # img = Image.fromarray(img_3d[:, :, depth])
+            # img.save(os.path.join(target_path, img_name))
     return True
 
 
