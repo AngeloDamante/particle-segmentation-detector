@@ -1,7 +1,7 @@
 import unittest
 import os
 from cv2 import cv2
-from preprocessing.analyser import PATH_GTH, PATH_IMG
+from utils.definitions import DTS_VIRUS, DTS_GTH
 from preprocessing.analyser import extract_particles, query_particles, draw_particles, draw_particles_slice
 from preprocessing.analyser import get_gth_path, get_img_path
 from preprocessing.Particle import Particle, SNR, Density
@@ -11,8 +11,8 @@ from typing import Tuple, List
 class PreprocessingUT(unittest.TestCase):
     my_virus : str = "VIRUS_snr_7_density_low"
     my_particles: List[Particle] = []
-    my_path_xml: str = os.path.join(PATH_GTH, f'{my_virus}.xml')
-    my_path_img: str = os.path.join(PATH_IMG, f'{my_virus}/{my_virus}_t000_z00.tif')
+    my_path_xml: str = os.path.join(DTS_GTH, f'{my_virus}.xml')
+    my_path_img: str = os.path.join(DTS_VIRUS, f'{my_virus}', f'{my_virus}_t000_z00.tif')
 
     def test_extract_particles(self):
         self.my_particles = extract_particles(self.my_path_xml)
