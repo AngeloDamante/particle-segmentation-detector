@@ -53,6 +53,10 @@ Make sure you have all the necessary requirements to use this repo.
 # in particle-ViT-segmentation directory
 sh verify_requirements.sh
 ```
+Finally, if you want to install the necessary packages , you can run follow lines
+```
+pip3 install -r requirements.txt
+```
 
 ### Docker
 `TODO`
