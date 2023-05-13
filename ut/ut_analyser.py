@@ -1,10 +1,11 @@
 import unittest
 import os
-from cv2 import cv2
+import cv2
 from utils.definitions import DTS_VIRUS, DTS_GTH
 from preprocessing.analyser import extract_particles, query_particles, draw_particles, draw_particles_slice
-from preprocessing.analyser import get_gth_path, get_img_path
-from preprocessing.Particle import Particle, SNR, Density
+from utils.compute_path import get_gth_path, get_img_path
+from preprocessing.Particle import Particle
+from utils.Types import SNR, Density
 from typing import Tuple, List
 
 
