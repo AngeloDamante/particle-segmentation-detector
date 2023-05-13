@@ -19,7 +19,7 @@ MAX_DEPTH = 10
 
 
 class Segmenter:
-    def __init__(self, sigma: float = 1.0, kernel: int = 3, radius: int = 1, value: int = 255):
+    def __init__(self, sigma: float = 1.0, kernel: int = 5, radius: int = 1, value: int = 255):
         """ Constructor
 
         :param sigma:
@@ -118,14 +118,14 @@ class Segmenter:
         :param particles:
         :return: np.ndarray
         """
-        RANGE = (-2, 3, 1)
+        interval = (-self.kernel//2+1, self.kernel//2+1, 1)
 
         # first build the smoothing kernel
 
         # kernel gaussiano di raggio 3
-        x = np.arange(*RANGE)
-        y = np.arange(*RANGE)
-        z = np.arange(*RANGE)
+        x = np.arange(*interval)
+        y = np.arange(*interval)
+        z = np.arange(*interval)
         xx, yy, zz = np.meshgrid(x, y, z)
         kernel = np.exp(-(xx ** 2 + yy ** 2 + zz ** 2) / (2 * self.sigma ** 2))
 
