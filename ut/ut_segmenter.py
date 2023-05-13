@@ -14,13 +14,17 @@ class TestSegmenter(unittest.TestCase):
         self.assertEqual(o_seg.size, (512, 512, 20))
         self.assertEqual((o_seg.sigma, o_seg.kernel, o_seg.radius, o_seg.value), (0.8, 3, 1, 255))
 
-    def test_create_dts_without_slice(self):
+    def test_sphere_dts_without_slice(self):
         o_seg = Segmenter()
         o_seg.create_dataset(SegMode.sphere, SNR.TYPE_7, Density.LOW)
 
-    def test_create_dts_saving_slices(self):
+    def test_sphere_segmenter_with_slices(self):
         o_seg = Segmenter()
         o_seg.create_dataset(SegMode.sphere, SNR.TYPE_7, Density.LOW, save_img=True)
+
+    def test_gauss_segmenter_with_sices(self):
+        o_seg= Segmenter()
+        o_seg.create_dataset(SegMode.gauss, SNR.TYPE_7, Density.LOW, save_img=True)
 
 
 if __name__ == '__main__':
