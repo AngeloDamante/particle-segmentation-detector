@@ -11,6 +11,3 @@ DTS_DIR = os.path.join(ROOT_DIR, "Dataset")
 DTS_CHALLENGE = os.path.join(DTS_DIR, "Challenge")
 DTS_VIRUS = os.path.join(DTS_CHALLENGE, "VIRUS")
 DTS_GTH = os.path.join(DTS_CHALLENGE, "ground_truth")
-
-# Segmented Datasets
-DTS_SEG_1 = os.path.join(DTS_DIR, "seg_technique_1")
