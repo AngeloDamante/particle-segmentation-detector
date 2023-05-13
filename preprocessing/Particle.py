@@ -10,14 +10,3 @@ class Particle:
 
     def get_coords(self) -> Tuple[int, float, float, float]:
         return self.t, self.x, self.y, self.z
-
-class SNR(Enum):
-    TYPE_1 = 'snr_1'
-    TYPE_2 = 'snr_2'
-    TYPE_4 = 'snr_4'
-    TYPE_7 = 'snr_7'
-
-class Density(Enum):
-    HIGH = 'density_high'
-    MID = 'density_mid'
-    LOW = 'density_low'
