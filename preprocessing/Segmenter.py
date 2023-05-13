@@ -4,6 +4,7 @@ import os
 import numpy as np
 from tqdm import tqdm
 from PIL import Image
+from scipy import signal
 from typing import List, Tuple
 from preprocessing.analyser import extract_particles, query_particles
 from preprocessing.Particle import Particle
@@ -110,6 +111,34 @@ class Segmenter:
             img_3d[mask] = self.value
         return img_3d
 
+    def _make_gauss(self, img_3d: np.ndarray, particles: List[Particle]) -> np.ndarray:
+        """Make segmentation with convolution using gaussian filter
+
+        :param img_3d:
+        :param particles:
+        :return: np.ndarray
+        """
+        RANGE = (-2, 3, 1)
+
+        # first build the smoothing kernel
+
+        # kernel gaussiano di raggio 3
+        x = np.arange(*RANGE)
+        y = np.arange(*RANGE)
+        z = np.arange(*RANGE)
+        xx, yy, zz = np.meshgrid(x, y, z)
+        kernel = np.exp(-(xx ** 2 + yy ** 2 + zz ** 2) / (2 * self.sigma ** 2))
+
+        for p in particles:
+            center = (round(p.x), round(p.y), np.clip(round(p.z), 0, 9))
+            img_3d[center] = self.value
+
+        filtered_left = signal.convolve(img_3d, kernel, mode="same").astype(np.uint8)
+        filtered_mirror = np.rot90(filtered_left, k=1, axes=(0,1))
+        filtered = np.flipud(filtered_mirror)
+
+        return filtered
+
     def _save_data(self, img_3d: np.ndarray, time: int, directory: str, save_img: bool):
         """ Save data
 
@@ -136,14 +165,3 @@ class Segmenter:
             img_name = f't_{str(time).zfill(3)}_z_{str(depth).zfill(2)}.tiff'
             img = Image.fromarray(img_3d[:, :, depth].astype(np.uint8))
             img.save(os.path.join(dir_img, img_name))
-
-    def _make_gauss(self, img_3d: np.ndarray, particles: List[Particle]) -> np.ndarray:
-        """Make segmentation with convolution using gaussian filter
-
-        :param img_3d:
-        :param particles:
-        :return: np.ndarray
-        """
-        # chiara code
-        # TODO
-        return img_3d
