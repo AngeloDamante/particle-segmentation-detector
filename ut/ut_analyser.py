@@ -1,16 +1,17 @@
 import unittest
 import os
 import cv2
-from utils.definitions import DTS_VIRUS, DTS_GTH
-from preprocessing.analyser import extract_particles, query_particles, draw_particles, draw_particles_slice
-from utils.compute_path import get_gth_path, get_img_path
-from preprocessing.Particle import Particle
-from utils.Types import SNR, Density
 from typing import Tuple, List
+from utils.definitions import DTS_VIRUS, DTS_GTH
+from preprocessing.analyser import extract_particles, query_particles
+from preprocessing.analyser import draw_particles, draw_particles_slice, img_3d_comparator
+from preprocessing.Particle import Particle
+from utils.Types import SNR, Density, SegMode
+from utils.compute_path import get_gth_xml_path, get_slice_path, get_seg_slice_path, get_seg_data_path
 
 
 class PreprocessingUT(unittest.TestCase):
-    my_virus : str = "VIRUS_snr_7_density_low"
+    my_virus: str = "VIRUS_snr_7_density_low"
     my_particles: List[Particle] = []
     my_path_xml: str = os.path.join(DTS_GTH, f'{my_virus}.xml')
     my_path_img: str = os.path.join(DTS_VIRUS, f'{my_virus}', f'{my_virus}_t000_z00.tif')
@@ -36,20 +37,47 @@ class PreprocessingUT(unittest.TestCase):
         frame = draw_particles(self.my_particles, img)
         cv2.imwrite("img_test.png", frame)
 
-    def test_select_slice(self):
-        # identifying tuple
-        idx = (SNR.TYPE_7, Density.LOW, 1, 2)
-        path_file_img = get_img_path(*idx)
-        path_file_gth = get_gth_path(idx[0], idx[1])
-
-        self.assertTrue(os.path.isfile(path_file_img))
-        self.assertTrue(os.path.isfile(path_file_gth))
-
     def test_draw_particles_slice(self):
         snr, t, depth, density = SNR.TYPE_7, 0, 8, Density.LOW
         img, self.my_particles = draw_particles_slice(snr, t, depth, density)
         self.assertTrue(self.my_particles)
         cv2.imwrite("slice_test.png", img)
+
+    def test_viewer_npy_data(self):
+        b_flag = img_3d_comparator(SegMode.gauss, SNR.TYPE_7, Density.LOW, t=0)
+        self.assertTrue(b_flag)
+
+
+class ComputePathUT(unittest.TestCase):
+
+    def test_select_slice(self):
+        # identifying tuple
+        idx = (SNR.TYPE_7, Density.LOW, 1, 2)
+        path_file_img = get_slice_path(*idx)
+        path_file_gth = get_gth_xml_path(idx[0], idx[1])
+
+        self.assertTrue(os.path.isfile(path_file_img))
+        self.assertTrue(os.path.isfile(path_file_gth))
+
+    def test_select_seg_data(self):
+        for t in range(100):
+            idx = (SegMode.gauss, SNR.TYPE_7, Density.LOW, t)
+            path = get_seg_data_path(*idx)
+            self.assertTrue(os.path.exists(path))
+
+        # failure case
+        self.assertFalse(os.path.exists(get_seg_data_path(SegMode.gauss, SNR.TYPE_7, Density.LOW, 101)))
+
+    def test_select_seg_slice(self):
+        for t in range(100):
+            for z in range(10):
+                idx = (SegMode.gauss, SNR.TYPE_7, Density.LOW, t, z)
+                path = get_seg_slice_path(*idx)
+                self.assertTrue(os.path.exists(path))
+
+        # failure case
+        self.assertFalse(os.path.exists(get_seg_slice_path(SegMode.gauss, SNR.TYPE_7, Density.LOW, 101, 11)))
+
 
 if __name__ == '__main__':
     unittest.main()
