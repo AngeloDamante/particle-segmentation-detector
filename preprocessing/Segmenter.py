@@ -9,8 +9,10 @@ from typing import List, Tuple
 from preprocessing.analyser import extract_particles, query_particles
 from preprocessing.Particle import Particle
 from utils.Types import SegMode, SNR, Density
-from utils.compute_path import get_gth_path
+from utils.compute_path import get_gth_xml_path
 from utils.definitions import DTS_DIR
+
+
 
 C, H, W, D = 1, 512, 512, 10
 SIZE_VOL = (C, H, W, D)
@@ -71,7 +73,7 @@ class Segmenter:
         :return:
         """
         # take particles
-        path_gth = get_gth_path(snr, density)
+        path_gth = get_gth_xml_path(snr, density)
         particles = extract_particles(path_gth)
 
         # initialize
@@ -120,9 +122,6 @@ class Segmenter:
         """
         interval = (-self.kernel//2+1, self.kernel//2+1, 1)
 
-        # first build the smoothing kernel
-
-        # kernel gaussiano di raggio 3
         x = np.arange(*interval)
         y = np.arange(*interval)
         z = np.arange(*interval)
@@ -134,6 +133,10 @@ class Segmenter:
             img_3d[center] = self.value
 
         filtered_left = signal.convolve(img_3d, kernel, mode="same").astype(np.uint8)
+
+        # mask
+        filtered_left[filtered_left > 0] = self.value
+
         filtered_mirror = np.rot90(filtered_left, k=1, axes=(0,1))
         filtered = np.flipud(filtered_mirror)
 
