@@ -4,10 +4,12 @@ import os
 from typing import Tuple, List, Callable
 import numpy as np
 import cv2
+from PIL import Image
 import xml.etree.ElementTree as ET
+import matplotlib.pyplot as plt
 from preprocessing.Particle import Particle
-from utils.Types import  SNR, Density
-from utils.compute_path import get_gth_path, get_img_path
+from utils.Types import SNR, Density, SegMode
+from utils.compute_path import get_gth_xml_path, get_slice_path, get_seg_data_path, get_seg_slice_path
 
 
 def create_video(dts_path: str):
@@ -80,14 +82,39 @@ def draw_particles_slice(snr: SNR, t: int, depth: int, density: Density, eps: fl
     :param eps:
     :return:
     """
-    path_img = get_img_path(snr, density, t, depth)
-    path_gth = get_gth_path(snr, density)
+    path_img = get_slice_path(snr, density, t, depth)
+    path_gth = get_gth_xml_path(snr, density)
 
     # depth - eps =< z < depth + eps
     particles = extract_particles(path_gth)
-    particles = query_particles(particles, (lambda p: True if ((depth + eps > p.z >= depth - eps) and p.t == t) else False))
+    particles = query_particles(particles,
+                                (lambda p: True if ((depth + eps > p.z >= depth - eps) and p.t == t) else False))
 
     # select img
     img = cv2.imread(path_img)
     if particles: img = draw_particles(particles, img.copy())
     return img, particles
+
+
+def img_3d_comparator(mode: SegMode, snr: SNR, density: Density, t: int) -> bool:
+    # seg_path = get_seg_data_path(mode, snr, density, t)
+    # if not os.path.isfile(seg_path): return False
+    # img_3d = np.load(seg_path)
+
+    num_cmp = 2
+
+    plt.figure(figsize=(8.0, 5.0))
+    for z in range(num_cmp):
+        plt.subplot(2, num_cmp, z + 1)
+        dts_slice = Image.open(get_slice_path(snr, density, t, z))
+        plt.title(f'original {z}')
+        plt.imshow(dts_slice, cmap="gray")
+    for depth in range(num_cmp):
+        plt.subplot(2, num_cmp, depth + num_cmp + 1)
+        seg_slice = Image.open(get_seg_slice_path(mode, snr, density, t, depth))
+        # seg_slice = Image.fromarray(img_3d[:, :, depth].astype(np.uint8))
+        plt.title(f'segmap {depth}')
+        plt.imshow(seg_slice, cmap="gray")
+    plt.tight_layout()
+    plt.savefig(f'{mode.value}_{snr.value}_{density.value}_{t}.tiff')
+    return True
