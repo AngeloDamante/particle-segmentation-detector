@@ -133,10 +133,6 @@ class Segmenter:
             img_3d[center] = self.value
 
         filtered_left = signal.convolve(img_3d, kernel, mode="same").astype(np.uint8)
-
-        # mask
-        filtered_left[filtered_left > 0] = self.value
-
         filtered_mirror = np.rot90(filtered_left, k=1, axes=(0,1))
         filtered = np.flipud(filtered_mirror)
 
