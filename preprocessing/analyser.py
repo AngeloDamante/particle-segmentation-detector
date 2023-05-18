@@ -96,13 +96,16 @@ def draw_particles_slice(snr: SNR, t: int, depth: int, density: Density, eps: fl
     return img, particles
 
 
+def make_npy():
+    pass
+
+
 def img_3d_comparator(mode: SegMode, snr: SNR, density: Density, t: int) -> bool:
-    # seg_path = get_seg_data_path(mode, snr, density, t)
-    # if not os.path.isfile(seg_path): return False
-    # img_3d = np.load(seg_path)
+    seg_path = get_seg_data_path(mode, snr, density, t)
+    if not os.path.isfile(seg_path): return False
+    img_3d = np.load(seg_path)
 
     num_cmp = 2
-
     plt.figure(figsize=(8.0, 5.0))
     for z in range(num_cmp):
         plt.subplot(2, num_cmp, z + 1)
