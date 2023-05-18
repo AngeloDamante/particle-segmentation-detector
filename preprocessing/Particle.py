@@ -1,5 +1,7 @@
+"""Define class Particle"""
+
 from typing import Tuple
-from enum import Enum
+
 
 class Particle:
     def __init__(self, t: int, x: float, y: float, z: float) -> None:

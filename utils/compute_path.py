@@ -1,3 +1,5 @@
+"""Define method to compute paths for extraction phases"""
+
 import os
 from utils.Types import SNR, Density, SegMode
 from utils.definitions import DTS_VIRUS, DTS_GTH, DTS_DIR

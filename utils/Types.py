@@ -1,5 +1,6 @@
-from enum import Enum
+"""Define utils Types to facilitate extraction"""
 
+from enum import Enum
 
 class SegMode(Enum):
     sphere = 'sphere'
