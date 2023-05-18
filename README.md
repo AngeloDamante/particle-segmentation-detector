@@ -9,7 +9,7 @@ Directories layout:
 ```
 particle-ViT-segmentation
 ├── Dataset
-│   ├── install_dataset.sh
+│   └── install_dataset.sh
 ├── Docker
 │   ├── docker-compose.yml
 │   └── Dockerfile
@@ -21,17 +21,17 @@ particle-ViT-segmentation
 │   └── Segmenter.py
 ├── techniques
 │   ├── README.md
-│   ├── segmenter
+│   ├── vit
 │   │   ├── include
 │   │   ├── main.py
 │   │   └── src
-│   └── utnet
+│   └── unet
 │       ├── include
 │       ├── main.py
 │       └── src
 ├── ut
 │   ├── ut_analyser.py
-│   └── ut_segmenter.py
+│   └── ut_segmenter.pys
 ├── utils
 │   ├── compute_path.py
 │   ├── definitions.py

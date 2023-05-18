@@ -1,8 +1,8 @@
 # Segmentation Techniques
 `TODO`
 
-## UtNet
+## UNET
 `TODO`
 
-## Segmenter
+## ViT
 `TODO`
