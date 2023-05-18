@@ -12,8 +12,6 @@ from utils.Types import SegMode, SNR, Density
 from utils.compute_path import get_gth_xml_path
 from utils.definitions import DTS_DIR
 
-
-
 C, H, W, D = 1, 512, 512, 10
 SIZE_VOL = (C, H, W, D)
 FINAL_TIME = 100
@@ -120,22 +118,17 @@ class Segmenter:
         :param particles:
         :return: np.ndarray
         """
-        interval = (-self.kernel//2+1, self.kernel//2+1, 1)
-
-        x = np.arange(*interval)
-        y = np.arange(*interval)
-        z = np.arange(*interval)
-        xx, yy, zz = np.meshgrid(x, y, z)
-        kernel = np.exp(-(xx ** 2 + yy ** 2 + zz ** 2) / (2 * self.sigma ** 2))
+        interval = (-self.kernel // 2 + 1, self.kernel // 2 + 1, 1)
+        x, y, z = np.meshgrid(np.arange(*interval), np.arange(*interval), np.arange(*interval))
+        kernel = np.exp(-(x ** 2 + y ** 2 + z ** 2) / (2 * self.sigma ** 2))
 
         for p in particles:
             center = (round(p.x), round(p.y), np.clip(round(p.z), 0, 9))
             img_3d[center] = self.value
 
         filtered_left = signal.convolve(img_3d, kernel, mode="same").astype(np.uint8)
-        filtered_mirror = np.rot90(filtered_left, k=1, axes=(0,1))
+        filtered_mirror = np.rot90(filtered_left, k=1, axes=(0, 1))
         filtered = np.flipud(filtered_mirror)
-
         return filtered
 
     def _save_data(self, img_3d: np.ndarray, time: int, directory: str, save_img: bool):
