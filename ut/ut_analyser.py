@@ -3,7 +3,7 @@ import os
 import cv2
 from typing import Tuple, List
 from utils.definitions import DTS_VIRUS, DTS_GTH
-from preprocessing.analyser import extract_particles, query_particles
+from preprocessing.analyser import extract_particles, query_particles, make_npy
 from preprocessing.analyser import draw_particles, draw_particles_slice, img_3d_comparator
 from preprocessing.Particle import Particle
 from utils.Types import SNR, Density, SegMode
@@ -46,6 +46,11 @@ class PreprocessingUT(unittest.TestCase):
     def test_viewer_npy_data(self):
         b_flag = img_3d_comparator(SegMode.gauss, SNR.TYPE_7, Density.LOW, t=0)
         self.assertTrue(b_flag)
+
+    def test_make_npy_data(self):
+        b_flag= make_npy(SNR.TYPE_7, Density.LOW, t=100)
+        self.assertTrue(b_flag)
+
 
 
 class ComputePathUT(unittest.TestCase):
