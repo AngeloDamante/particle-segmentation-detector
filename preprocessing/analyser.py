@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from preprocessing.Particle import Particle
 from utils.Types import SNR, Density, SegMode
 from utils.compute_path import get_gth_xml_path, get_slice_path, get_seg_data_path, get_seg_slice_path
+from utils.definitions import DTS_CHALLENGE
 
 
 def create_video(dts_path: str):
@@ -96,8 +97,19 @@ def draw_particles_slice(snr: SNR, t: int, depth: int, density: Density, eps: fl
     return img, particles
 
 
-def make_npy():
-    pass
+def make_npy(snr: SNR, density: Density, t: int):
+    depth = 10
+    for t in range(t):
+        img_list = []
+        for z in range(depth):
+            im = cv2.imread(get_slice_path(snr, density, t, z), 0)
+            img_list.append(im)
+        img_3d = np.stack(img_list, axis=2)
+        path = os.path.join(DTS_CHALLENGE, 'VIRUS_npy', f'VIRUS_{snr}_{density}_npy')
+        os.makedirs(path, exist_ok=True)
+        np.save(os.path.join(path, f't_{str(t).zfill(3)}'), img_3d)
+
+pass
 
 
 def img_3d_comparator(mode: SegMode, snr: SNR, density: Density, t: int) -> bool:
