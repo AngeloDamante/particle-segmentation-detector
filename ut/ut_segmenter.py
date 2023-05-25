@@ -1,34 +1,26 @@
 import unittest
 from preprocessing.Segmenter import Segmenter
-from utils.Types import SegMode, SNR, Density
+from utils.Types import SNR, Density
 
 
 class TestSegmenter(unittest.TestCase):
     def test_segmenter_class(self):
         o_seg = Segmenter()
         self.assertEqual(o_seg.size, (512, 512, 10))
-        self.assertEqual((o_seg.sigma, o_seg.kernel, o_seg.radius, o_seg.value), (1.0, 5, 1, 255))
+        self.assertEqual((o_seg.sigma, o_seg.kernel, o_seg.value), (1.0, 5, 255))
 
         o_seg.update_size((512, 512, 20))
         o_seg.update_values(sigma=0.8)
         self.assertEqual(o_seg.size, (512, 512, 20))
-        self.assertEqual((o_seg.sigma, o_seg.kernel, o_seg.radius, o_seg.value), (0.8, 5, 1, 255))
+        self.assertEqual((o_seg.sigma, o_seg.kernel, o_seg.value), (0.8, 5, 255))
 
     def test_sphere_segmenter_with_slices(self):
         o_seg = Segmenter()
-        o_seg.create_dataset(SegMode.sphere, SNR.TYPE_7, Density.LOW, save_img=True)
+        o_seg.create_dataset(SNR.TYPE_7, Density.LOW, save_img=True)
 
     def test_sphere_dts_without_slice(self):
         o_seg = Segmenter()
-        o_seg.create_dataset(SegMode.sphere, SNR.TYPE_7, Density.LOW)
-
-    def test_gauss_segmenter_with_sices(self):
-        o_seg= Segmenter()
-        o_seg.create_dataset(SegMode.gauss, SNR.TYPE_7, Density.LOW, save_img=True)
-
-    def test_gauss_segmenter_without_sices(self):
-        o_seg= Segmenter()
-        o_seg.create_dataset(SegMode.gauss, SNR.TYPE_7, Density.LOW)
+        o_seg.create_dataset(SNR.TYPE_7, Density.LOW)
 
 
 if __name__ == '__main__':

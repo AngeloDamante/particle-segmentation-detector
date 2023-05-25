@@ -4,9 +4,9 @@ import cv2
 from typing import Tuple, List
 from utils.definitions import DTS_VIRUS, DTS_GTH
 from preprocessing.analyser import extract_particles, query_particles, make_npy
-from preprocessing.analyser import draw_particles, draw_particles_slice, img_3d_comparator
+from preprocessing.analyser import draw_particles, draw_particles_slice
 from preprocessing.Particle import Particle
-from utils.Types import SNR, Density, SegMode
+from utils.Types import SNR, Density
 from utils.compute_path import get_gth_xml_path, get_slice_path, get_seg_slice_path, get_seg_data_path
 
 
@@ -43,14 +43,11 @@ class PreprocessingUT(unittest.TestCase):
         self.assertTrue(self.my_particles)
         cv2.imwrite("slice_test.png", img)
 
-    def test_viewer_npy_data(self):
-        b_flag = img_3d_comparator(SegMode.gauss, SNR.TYPE_7, Density.LOW, t=0)
-        self.assertTrue(b_flag)
-
     def test_make_npy_data(self):
-        b_flag= make_npy(SNR.TYPE_7, Density.LOW, t=100)
-        self.assertTrue(b_flag)
-
+        t = 100
+        b1_flag = make_npy(SNR.TYPE_7, Density.LOW, t)
+        b2_flag = make_npy(SNR.TYPE_7, Density.HIGH, t)
+        self.assertTrue(b1_flag and b2_flag)
 
 
 class ComputePathUT(unittest.TestCase):
@@ -66,22 +63,22 @@ class ComputePathUT(unittest.TestCase):
 
     def test_select_seg_data(self):
         for t in range(100):
-            idx = (SegMode.gauss, SNR.TYPE_7, Density.LOW, t)
+            idx = (SNR.TYPE_7, Density.LOW, t)
             path = get_seg_data_path(*idx)
             self.assertTrue(os.path.exists(path))
 
         # failure case
-        self.assertFalse(os.path.exists(get_seg_data_path(SegMode.gauss, SNR.TYPE_7, Density.LOW, 101)))
+        self.assertFalse(os.path.exists(get_seg_data_path(SNR.TYPE_7, Density.LOW, 101)))
 
     def test_select_seg_slice(self):
         for t in range(100):
             for z in range(10):
-                idx = (SegMode.gauss, SNR.TYPE_7, Density.LOW, t, z)
+                idx = (SNR.TYPE_7, Density.LOW, t, z)
                 path = get_seg_slice_path(*idx)
                 self.assertTrue(os.path.exists(path))
 
         # failure case
-        self.assertFalse(os.path.exists(get_seg_slice_path(SegMode.gauss, SNR.TYPE_7, Density.LOW, 101, 11)))
+        self.assertFalse(os.path.exists(get_seg_slice_path(SNR.TYPE_7, Density.LOW, 101, 11)))
 
 
 if __name__ == '__main__':
