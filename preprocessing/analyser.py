@@ -8,21 +8,7 @@ import xml.etree.ElementTree as ET
 from preprocessing.Particle import Particle
 from utils.Types import SNR, Density
 from utils.compute_path import get_gth_xml_path, get_slice_path
-from utils.definitions import DTS_CHALLENGE
-
-
-def create_video(dts_path: str):
-    """Create Video from files (slices)
-
-    :param dts_path:
-    :return:
-    """
-    if not os.path.exists(dts_path): return
-    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-    out = cv2.VideoWriter("video.mp4", fourcc, fps=15, size=(512, 512))
-    for frame_name in os.listdir(dts_path):
-        frame = cv2.imread(os.path.join(dts_path, frame_name))
-        out.write(frame.astype('uint8'))
+from utils.definitions import DTS_CHALLENGE, DEPTH, TIME_INTERVAL, DTS_DATA
 
 
 def extract_particles(xml: str) -> List[Particle]:
@@ -86,7 +72,7 @@ def draw_particles_slice(snr: SNR, t: int, depth: int, density: Density, eps: fl
 
     # depth - eps =< z < depth + eps
     particles = extract_particles(path_gth)
-    particles = query_particles(particles,(lambda p: True if ((depth + eps > p.z >= depth - eps) and p.t == t) else False))
+    particles = query_particles(particles, (lambda p: True if ((depth + eps > p.z >= depth - eps) and p.t == t) else False))
 
     # select img
     img = cv2.imread(path_img)
@@ -94,22 +80,20 @@ def draw_particles_slice(snr: SNR, t: int, depth: int, density: Density, eps: fl
     return img, particles
 
 
-def make_npy(snr: SNR, density: Density, t: int):
+def make_npy(snr: SNR, density: Density):
     """Npy files maker
 
     :param snr:
     :param density:
-    :param t:
     :return:
     """
-    depth = 10
-    for t in range(t):
+    for t in range(TIME_INTERVAL):
         img_list = []
-        for z in range(depth):
+        for z in range(DEPTH):
             im = cv2.imread(get_slice_path(snr, density, t, z), 0)
             img_list.append(im)
         img_3d = np.stack(img_list, axis=2)
-        path = os.path.join(DTS_CHALLENGE, 'VIRUS_npy', f'{snr.value}_{density.value}')
+        path = os.path.join(DTS_DATA, f'{snr.value}_{density.value}')
         os.makedirs(path, exist_ok=True)
         np.save(os.path.join(path, f't_{str(t).zfill(3)}'), img_3d)
     return True
