@@ -1,13 +1,15 @@
 import unittest
 import os
 import cv2
-from typing import Tuple, List
+from typing import List
 from utils.definitions import DTS_VIRUS, DTS_GTH
 from preprocessing.analyser import extract_particles, query_particles, make_npy
 from preprocessing.analyser import draw_particles, draw_particles_slice
 from preprocessing.Particle import Particle
 from utils.Types import SNR, Density
-from utils.compute_path import get_gth_xml_path, get_slice_path, get_seg_slice_path, get_seg_data_path
+from utils.definitions import TIME_INTERVAL, DEPTH
+from utils.compute_path import get_gth_xml_path, get_slice_path, get_seg_slice_path
+from utils.compute_path import get_seg_data_path, get_data_path, get_npz_data_path
 
 
 class PreprocessingUT(unittest.TestCase):
@@ -44,9 +46,8 @@ class PreprocessingUT(unittest.TestCase):
         cv2.imwrite("slice_test.png", img)
 
     def test_make_npy_data(self):
-        t = 100
-        b1_flag = make_npy(SNR.TYPE_7, Density.LOW, t)
-        b2_flag = make_npy(SNR.TYPE_7, Density.HIGH, t)
+        b1_flag = make_npy(SNR.TYPE_7, Density.LOW)
+        b2_flag = make_npy(SNR.TYPE_7, Density.HIGH)
         self.assertTrue(b1_flag and b2_flag)
 
 
@@ -62,7 +63,7 @@ class ComputePathUT(unittest.TestCase):
         self.assertTrue(os.path.isfile(path_file_gth))
 
     def test_select_seg_data(self):
-        for t in range(100):
+        for t in range(TIME_INTERVAL):
             idx = (SNR.TYPE_7, Density.LOW, t)
             path = get_seg_data_path(*idx)
             self.assertTrue(os.path.exists(path))
@@ -71,14 +72,26 @@ class ComputePathUT(unittest.TestCase):
         self.assertFalse(os.path.exists(get_seg_data_path(SNR.TYPE_7, Density.LOW, 101)))
 
     def test_select_seg_slice(self):
-        for t in range(100):
-            for z in range(10):
+        for t in range(TIME_INTERVAL):
+            for z in range(DEPTH):
                 idx = (SNR.TYPE_7, Density.LOW, t, z)
                 path = get_seg_slice_path(*idx)
                 self.assertTrue(os.path.exists(path))
 
         # failure case
         self.assertFalse(os.path.exists(get_seg_slice_path(SNR.TYPE_7, Density.LOW, 101, 11)))
+
+    def test_select_data(self):
+        for t in range(TIME_INTERVAL):
+            idx = (SNR.TYPE_7, Density.LOW, t)
+            path = get_data_path(*idx)
+            self.assertTrue(os.path.exists(path))
+
+    def test_npz_data(self):
+        for t in range(TIME_INTERVAL):
+            idx = (SNR.TYPE_7, Density.LOW, t)
+            path = get_npz_data_path(*idx)
+            self.assertTrue(os.path.exists(path))
 
 
 if __name__ == '__main__':
