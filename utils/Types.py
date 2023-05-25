@@ -18,4 +18,5 @@ class Density(Enum):
 
 # dict to parsing
 mapSNR = {'snr_1': SNR.TYPE_1, 'snr_2': SNR.TYPE_2, 'snr_4': SNR.TYPE_4, 'snr_7': SNR.TYPE_7}
-mapDensity = {'density_high': Density.HIGH, 'density_mid': Density.MID, 'density_low': Density.LOW}
+mapDensity = {'density_low': Density.LOW, 'density_mid': Density.MID, 'density_high': Density.HIGH}
+
