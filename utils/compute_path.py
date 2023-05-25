@@ -1,8 +1,8 @@
 """Define method to compute paths for extraction phases"""
 
 import os
-from utils.Types import SNR, Density, SegMode
-from utils.definitions import DTS_VIRUS, DTS_GTH, DTS_DIR
+from utils.Types import SNR, Density
+from utils.definitions import DTS_VIRUS, DTS_GTH, DTS_DIR, DTS_SEG_DATA, DTS_SEG_IMG
 
 
 def get_slice_path(snr: SNR, density: Density, t: int, depth: int) -> str:
@@ -31,7 +31,7 @@ def get_gth_xml_path(snr: SNR, density: Density) -> str:
     return path_file_gth
 
 
-def get_seg_data_path(mode: SegMode, snr: SNR, density: Density, t: int) -> str:
+def get_seg_data_path(snr: SNR, density: Density, t: int) -> str:
     """Compute path for npy data
 
     :param snr:
@@ -40,20 +40,17 @@ def get_seg_data_path(mode: SegMode, snr: SNR, density: Density, t: int) -> str:
     :param mode:
     :return:
     """
-    dir_seg = f'segmentation_{mode.value}'
-    data_path = os.path.join(DTS_DIR, dir_seg, f'{snr.value}_{density.value}_data', f't_{str(t).zfill(3)}.npy')
+    data_path = os.path.join(DTS_SEG_DATA, f'{snr.value}_{density.value}', f't_{str(t).zfill(3)}.npy')
     return data_path
 
-def get_seg_slice_path(mode: SegMode, snr: SNR, density: Density, t: int, z: int) -> str:
+def get_seg_slice_path(snr: SNR, density: Density, t: int, z: int) -> str:
     """Compute segmented Slice path
 
-    :param mode:
     :param snr:
     :param density:
     :param t:
     :param z:
     :return:
     """
-    dir_seg = f'segmentation_{mode.value}'
-    slice_path = os.path.join(DTS_DIR, dir_seg, f'{snr.value}_{density.value}_img', f't_{str(t).zfill(3)}_z_{str(z).zfill(2)}.tiff')
+    slice_path = os.path.join(DTS_SEG_IMG, f'{snr.value}_{density.value}', f't_{str(t).zfill(3)}_z_{str(z).zfill(2)}.tiff')
     return slice_path
