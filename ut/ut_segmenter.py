@@ -14,11 +14,11 @@ class TestSegmenter(unittest.TestCase):
         self.assertEqual(o_seg.size, (512, 512, 20))
         self.assertEqual((o_seg.sigma, o_seg.kernel, o_seg.value), (0.8, 5, 255))
 
-    def test_sphere_segmenter_with_slices(self):
+    def test_with_slices(self):
         o_seg = Segmenter()
         o_seg.create_dataset(SNR.TYPE_7, Density.LOW, save_img=True)
 
-    def test_sphere_dts_without_slice(self):
+    def test_without_slice(self):
         o_seg = Segmenter()
         o_seg.create_dataset(SNR.TYPE_7, Density.LOW)
 
