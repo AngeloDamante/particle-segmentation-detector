@@ -35,18 +35,18 @@ def get_slice_path(snr: SNR, density: Density, t: int, z: int, root: str = None)
     return os.path.join(root, compute_name(snr, density), file_name)
 
 
-def get_data_path(snr: SNR, density: Density, t: int, is_raw: bool = False, root: str = None) -> str:
+def get_data_path(snr: SNR, density: Density, t: int, is_npz: bool = False, root: str = None) -> str:
     """Compute path for slice with input directory
 
     :param snr:
     :param density:
     :param t:
-    :param is_raw:
+    :param is_npz:
     :param root: if not present, this function compute relative path
     :return:
     """
     if not root: root = DEFAULT_DATA_PATH
-    ext = 'npz' if is_raw else 'npy'
+    ext = 'npz' if is_npz else 'npy'
     file_name = f'{compute_name(snr, density, t)}.{ext}'
     return os.path.join(root, compute_name(snr, density), file_name)
 

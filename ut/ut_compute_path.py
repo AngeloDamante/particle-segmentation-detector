@@ -21,7 +21,7 @@ class ComputePathTest(unittest.TestCase):
     def test_data_path(self):
         path = get_data_path(SNR.TYPE_7, Density.LOW, t=1)
         self.assertEqual(path, os.path.join(DEFAULT_DATA_PATH, "snr_7_density_low", "snr_7_density_low_t001.npy"))
-        path = get_data_path(SNR.TYPE_7, Density.LOW, t=1, is_raw=True, root=DTS_RAW_PATH)
+        path = get_data_path(SNR.TYPE_7, Density.LOW, t=1, is_npz=True, root=DTS_RAW_PATH)
         self.assertEqual(path, os.path.join(DTS_RAW_PATH, "snr_7_density_low", "snr_7_density_low_t001.npz"))
 
     def test_gth_path(self):
