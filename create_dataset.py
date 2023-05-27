@@ -1,25 +1,51 @@
 import logging
+import os
+import shutil
+from utils.definitions import DTS_DIR, DTS_TRAIN_PATH, DTS_TEST_PATH, DTS_VALIDATION_PATH, DTS_RAW_PATH,TIME_INTERVAL
+from utils.Types import SNR, Density
 from utils.logger import configure_logger
+from utils.compute_path import get_data_path
 
 configure_logger(logging.INFO)
 
 
-def split_dataset(perc: int):
+def split_dataset(snr: SNR, density: Density, p_train: int=80):
     """Split dataset into training, testing, validation directories
 
         Input percentage  is the value for training. The rest of the percentage
         is divided equally between testing and validation.
 
-    :param perc: percentage of split for training
+    :param p_train: percentage of splitting for training
+    :param density:
+    :param snr:
     :return:
     """
-    # TODO
-    pass
+    p_test = (TIME_INTERVAL - p_train) / 2
+    p_val = p_test
+    os.makedirs(DTS_TRAIN_PATH, exist_ok=True)
+    os.makedirs(DTS_TEST_PATH, exist_ok=True)
+    os.makedirs(DTS_VALIDATION_PATH, exist_ok=True)
+
+    for time in range(p_train):
+        path = get_data_path(snr.value, density.value, t=time, is_npz=True, root=DTS_RAW_PATH)
+        shutil.copy2(path, DTS_TRAIN_PATH)
+
+    for time in range(p_test):
+        t = p_train + time
+        path = get_data_path(snr.value, density.value, t=t, is_npz=True, root=DTS_RAW_PATH)
+        shutil.copy2(path, DTS_TEST_PATH)
+
+    for time in range(p_val):
+        t = p_train + p_test + time
+        path = get_data_path(snr.value, density.value, t=t, is_npz=True, root=DTS_RAW_PATH)
+        shutil.copy2(path, DTS_VALIDATION_PATH)
 
 
-def delete_folder():
-    # TODO
-    pass
+def delete_folder(folder: str):
+    path_folder = os.path.join(DTS_DIR, folder)
+    for filename in os.listdir(path_folder):
+        file_path = os.path.join(path_folder, filename)
+        os.remove(file_path)
 
 
 def save_slices():
