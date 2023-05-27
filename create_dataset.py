@@ -20,24 +20,24 @@ def split_dataset(snr: SNR, density: Density, p_train: int=80):
     :param snr:
     :return:
     """
-    p_test = (TIME_INTERVAL - p_train) / 2
+    p_test = (TIME_INTERVAL - p_train) // 2
     p_val = p_test
     os.makedirs(DTS_TRAIN_PATH, exist_ok=True)
     os.makedirs(DTS_TEST_PATH, exist_ok=True)
     os.makedirs(DTS_VALIDATION_PATH, exist_ok=True)
 
     for time in range(p_train):
-        path = get_data_path(snr.value, density.value, t=time, is_npz=True, root=DTS_RAW_PATH)
+        path = get_data_path(snr, density, t=time, is_npz=True, root=DTS_RAW_PATH)
         shutil.copy2(path, DTS_TRAIN_PATH)
 
     for time in range(p_test):
         t = p_train + time
-        path = get_data_path(snr.value, density.value, t=t, is_npz=True, root=DTS_RAW_PATH)
+        path = get_data_path(snr, density, t=t, is_npz=True, root=DTS_RAW_PATH)
         shutil.copy2(path, DTS_TEST_PATH)
 
     for time in range(p_val):
         t = p_train + p_test + time
-        path = get_data_path(snr.value, density.value, t=t, is_npz=True, root=DTS_RAW_PATH)
+        path = get_data_path(snr, density, t=t, is_npz=True, root=DTS_RAW_PATH)
         shutil.copy2(path, DTS_VALIDATION_PATH)
 
 
@@ -56,6 +56,11 @@ def save_slices():
 def json_parser():
     # TODO
     pass
+
+my_snr = SNR.TYPE_7
+my_density = Density.LOW
+split_dataset(my_snr, my_density)
+
 
 # def _save_data(self, img_3d: np.ndarray, time: int, directory: str, save_img: bool):
 #     """ Save data
