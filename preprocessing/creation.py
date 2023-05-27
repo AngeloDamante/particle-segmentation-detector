@@ -53,8 +53,8 @@ def make_raw_data(snr: SNR, density: Density, kernel: int, sigma: float, dest_di
         target, gth = segment_data(snr, density, t, kernel, sigma)
         img_3d = np.load(get_data_path(snr, density, t))
         dir_name = compute_name(snr, density)
+        os.makedirs(os.path.join(dest_dir, dir_name), exist_ok=True)
         data_name = compute_name(snr, density, t)
         complete_path = os.path.join(dest_dir, dir_name, data_name)
-        os.makedirs(complete_path, exist_ok=True)
         np.savez(complete_path, img=img_3d, target=target, gth=gth, snr=snr, density=density, t=t)
 
