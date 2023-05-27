@@ -1,14 +1,9 @@
 """ Utils Function to implement preprocessing phase """
 
 import os
-from typing import Tuple, List, Callable
-import numpy as np
-import cv2
+from typing import List, Callable
 import xml.etree.ElementTree as ET
-from preprocessing.Particle import Particle
-from utils.Types import SNR, Density
-from utils.compute_path import get_gth_xml_path, get_slice_path
-from utils.definitions import DTS_CHALLENGE, DEPTH, TIME_INTERVAL, DTS_DATA
+from utils.Types import Particle
 
 
 def extract_particles(xml: str) -> List[Particle]:
@@ -37,63 +32,3 @@ def query_particles(particles: List[Particle], criteria: Callable[[Particle], in
     """
     particles_criteria = [particle for particle in particles if criteria(particle)]
     return particles_criteria
-
-
-def draw_particles(particles: List[Particle], frame: np.ndarray) -> np.ndarray:
-    """Draw input particles on frame
-
-    :param particles:
-    :param frame:
-    :return: frame with drawed particles
-    """
-    if frame is None: return 255 * np.ones((512, 512, 3), np.uint8)
-    if not particles: return frame
-    for particle in particles:
-        x = round(particle.x)
-        y = round(particle.y)
-        cv2.circle(frame, (int(x), int(y)), 1, (60, 20, 220))
-        cv2.putText(frame, text=str(particle.z), org=(x, y), fontFace=cv2.FONT_ITALIC, fontScale=0.4, color=(0, 255, 0))
-    return frame
-
-
-def draw_particles_slice(snr: SNR, t: int, depth: int, density: Density, eps: float = 2.0) -> Tuple[
-    np.ndarray, List[Particle]]:
-    """Draw particles with criteria to select slice
-
-    :param snr:
-    :param t:
-    :param depth:
-    :param density:
-    :param eps:
-    :return:
-    """
-    path_img = get_slice_path(snr, density, t, depth)
-    path_gth = get_gth_xml_path(snr, density)
-
-    # depth - eps =< z < depth + eps
-    particles = extract_particles(path_gth)
-    particles = query_particles(particles, (lambda p: True if ((depth + eps > p.z >= depth - eps) and p.t == t) else False))
-
-    # select img
-    img = cv2.imread(path_img)
-    if particles: img = draw_particles(particles, img.copy())
-    return img, particles
-
-
-def make_npy(snr: SNR, density: Density):
-    """Npy files maker
-
-    :param snr:
-    :param density:
-    :return:
-    """
-    for t in range(TIME_INTERVAL):
-        img_list = []
-        for z in range(DEPTH):
-            im = cv2.imread(get_slice_path(snr, density, t, z), 0)
-            img_list.append(im)
-        img_3d = np.stack(img_list, axis=2)
-        path = os.path.join(DTS_DATA, f'{snr.value}_{density.value}')
-        os.makedirs(path, exist_ok=True)
-        np.save(os.path.join(path, f't_{str(t).zfill(3)}'), img_3d)
-    return True
