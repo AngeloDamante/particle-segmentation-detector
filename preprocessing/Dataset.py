@@ -11,6 +11,32 @@ from utils.definitions import DTS_TRAIN_PATH
 import random
 
 
+class CustomToTensor(transforms.ToTensor):
+    def __call__(self, img, target) -> Any:
+        return F.to_tensor(img), F.to_tensor(target)
+
+
+class CustomHorizontalFlip(transforms.RandomHorizontalFlip):
+    def __call__(self, img, target) -> Any:
+        if random.random() < self.p:
+            return F.hflip(img), F.hflip(target)
+        return img, target
+
+
+class CustomVerticalFlip(transforms.RandomVerticalFlip):
+    def __call__(self, img, target) -> Any:
+        if random.random() < self.p:
+            return F.vflip(img), F.vflip(target)
+        return img, target
+
+
+class CustomCompose(transforms.Compose):
+    def __call__(self, img, target) -> Any:
+        for t in self.transforms:
+            img, target = t(img, target)
+        return img, target
+
+
 # dataset
 class VirusDataset(Dataset):
     def __init__(self, dir_path: str, transform=None):
@@ -28,3 +54,11 @@ class VirusDataset(Dataset):
         if self.transform:
             img, target = self.transform(img, target)
         return {'img': img, 'target': target}
+
+
+# T = transforms.ToTensor
+T = CustomCompose([
+    CustomToTensor(),
+    CustomHorizontalFlip(p=0.5),
+    CustomVerticalFlip(p=0.5),
+])
