@@ -1,38 +1,30 @@
 """Define Torch Dataset_original and Dataloader"""
 import os
-import numpy as np
-from typing import Tuple, List
-from pathlib import Path
-from compute_path import get_seg_data_path, SegMode, SNR, Density
 
 import torch
+import numpy as np
+from typing import Any
 from torch.utils.data import Dataset
 from torchvision import transforms
-
-
-from typing import Any
 from torchvision.transforms import functional as F
+from utils.definitions import DTS_TRAIN_PATH
 import random
+
 
 # dataset
 class VirusDataset(Dataset):
-    def __init__(self, snr: SNR, densities:List[Density], mode: SegMode, dir_name, transform=None):
-        self.snr = snr
-        self.densities = densities
-        self.segMode = mode
+    def __init__(self, dir_path: str, transform=None):
+        self.dir_path = dir_path
         self.transform = transform
-
-        dts_path_training = os.path.join(dir_name)
-        self.file_list = os.listdir(dts_path_training)
+        self.files = os.listdir(self.dir_path)
 
     def __len__(self):
-        return len(self.file_list)
+        return len(self.files)
 
     def __getitem__(self, index):
-        # return due numpy array di dimensioni 10, 512, 512
-        data = np.load(self.file_list[index])
-        img = data['image'] / 255.0
+        data = np.load(os.path.join(self.dir_path, self.files[index]), allow_pickle=True)
+        img = data['img'] / 255.0
         target = data['target'] / 255.0
         if self.transform:
             img, target = self.transform(img, target)
-        return img, target
+        return {'img': img, 'target': target}
