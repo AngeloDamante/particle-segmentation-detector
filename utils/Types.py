@@ -1,6 +1,18 @@
-"""Define utils Types to facilitate extraction"""
+"""Define utils Types to handle Dataset_original"""
 
 from enum import Enum
+from typing import Tuple
+
+
+class Particle:
+    def __init__(self, t: int, x: float, y: float, z: float) -> None:
+        self.t = t
+        self.x = x
+        self.y = y
+        self.z = z
+
+    def get_coords(self) -> Tuple[int, float, float, float]:
+        return self.t, self.x, self.y, self.z
 
 
 class SNR(Enum):
@@ -14,9 +26,3 @@ class Density(Enum):
     HIGH = 'density_high'
     MID = 'density_mid'
     LOW = 'density_low'
-
-
-# dict to parsing
-mapSNR = {'snr_1': SNR.TYPE_1, 'snr_2': SNR.TYPE_2, 'snr_4': SNR.TYPE_4, 'snr_7': SNR.TYPE_7}
-mapDensity = {'density_low': Density.LOW, 'density_mid': Density.MID, 'density_high': Density.HIGH}
-

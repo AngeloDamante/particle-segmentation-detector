@@ -1,73 +1,12 @@
-"""Define method to compute paths for extraction phases
-
-Dataset
-├── Challenge
-│   ├── ground_truth -> get_gth_xml_path()
-│   │   ├── file.xml
-│   │   └── ...
-│   ├── VIRUS
-│   │   ├── VIRUS_snr_1_density_high -> get_slice_path()
-│   │   └── ...
-│   └── VIRUS_npy
-│       ├── snr_1_density_high -> get_data_path()
-│       └── ...
-└── Segmaps
-│    ├── Data
-│    │   ├── snr_1_density_high -> get_seg_data_path()
-│    │   └── ...
-│    └── Images
-│        ├── snr_1_density_high -> get_seg_slice_path()
-│        └── ...
-└── DTS
-    ├── snr_1_density_high -> get_npz_data_path()
-    └── ...
-"""
+"""Define method to compute paths for data"""
 
 import os
 from utils.Types import SNR, Density
-from utils.definitions import DTS_VIRUS, DTS_GTH, DTS_SEG_DATA, DTS_SEG_IMG, DTS_DATA, DTS_COMPLETE
+from utils.definitions import DEFAULT_SLICES_PATH, DEFAULT_DATA_PATH, DEFAULT_GTH_PATH
 
 
-def get_slice_path(snr: SNR, density: Density, t: int, depth: int) -> str:
-    """Compute slice path for identifying tuple(snr, density, t, depth)
-
-    :param snr:
-    :param density:
-    :param t:
-    :param depth:
-    :return: path
-    """
-    name = f'VIRUS_{snr.value}_{density.value}'
-    path_file_img = os.path.join(DTS_VIRUS, name, f'{name}_t{str(t).zfill(3)}_z{str(depth).zfill(2)}.tif')
-    return path_file_img
-
-
-def get_gth_xml_path(snr: SNR, density: Density) -> str:
-    """Compute path for file.xml with gth
-
-    :param snr:
-    :param density:
-    :return: path
-    """
-    name = f'VIRUS_{snr.value}_{density.value}'
-    path_file_gth = os.path.join(DTS_GTH, f'{name}.xml')
-    return path_file_gth
-
-
-def get_seg_data_path(snr: SNR, density: Density, t: int) -> str:
-    """Compute path for npy seg data
-
-    :param snr:
-    :param density:
-    :param t:
-    :return:
-    """
-    seg_data_path = os.path.join(DTS_SEG_DATA, f'{snr.value}_{density.value}', f't_{str(t).zfill(3)}.npy')
-    return seg_data_path
-
-
-def get_seg_slice_path(snr: SNR, density: Density, t: int, z: int) -> str:
-    """Compute segmented Slice path
+def compute_name(snr: SNR, density: Density, t: int = None, z: int = None) -> str:
+    """Compute General name for data
 
     :param snr:
     :param density:
@@ -75,29 +14,52 @@ def get_seg_slice_path(snr: SNR, density: Density, t: int, z: int) -> str:
     :param z:
     :return:
     """
-    slice_path = os.path.join(DTS_SEG_IMG, f'{snr.value}_{density.value}',
-                              f't_{str(t).zfill(3)}_z_{str(z).zfill(2)}.tiff')
-    return slice_path
+    z_name, t_name = "", ""
+    if t is not None: t_name = f'_t{str(t).zfill(3)}'
+    if z is not None: z_name = f'_z{str(z).zfill(2)}'
+    return f'{snr.value}_{density.value}{t_name}{z_name}'
 
 
-def get_data_path(snr: SNR, density: Density, t: int) -> str:
-    """Compute path for npy data
-
-    :param snr:
-    :param density:
-    :param t:
-    :return:
-    """
-    data_path = os.path.join(DTS_DATA, f'{snr.value}_{density.value}', f't_{str(t).zfill(3)}.npy')
-    return data_path
-
-def get_npz_data_path(snr:SNR, density:Density, t: int) -> str:
-    """Compute npz data path
+def get_slice_path(snr: SNR, density: Density, t: int, z: int, root: str = None) -> str:
+    """Computd path for slice with input directory
 
     :param snr:
     :param density:
     :param t:
+    :param z:
+    :param root: if not present, this function compute relative path
     :return:
     """
-    npz_data_path = os.path.join(DTS_COMPLETE, f'{snr.value}_{density.value}', f't_{str(t).zfill(3)}.npz')
-    return npz_data_path
+    if not root: root = DEFAULT_SLICES_PATH
+    file_name = f'{compute_name(snr, density, t, z)}.tif'
+    return os.path.join(root, compute_name(snr, density), file_name)
+
+
+def get_data_path(snr: SNR, density: Density, t: int, is_raw: bool = False, root: str = None) -> str:
+    """Compute path for slice with input directory
+
+    :param snr:
+    :param density:
+    :param t:
+    :param is_raw:
+    :param root: if not present, this function compute relative path
+    :return:
+    """
+    if not root: root = DEFAULT_DATA_PATH
+    ext = 'npz' if is_raw else 'npy'
+    file_name = f'{compute_name(snr, density, t)}.{ext}'
+    return os.path.join(root, compute_name(snr, density), file_name)
+
+
+def get_gth_xml_path(snr: SNR, density: Density, root: str = None) -> str:
+    """Compute path for file.xml with gth
+
+    :param snr:
+    :param density:
+    :param root:
+    :return: path
+    """
+    if not root: root = DEFAULT_GTH_PATH
+    name = compute_name(snr, density)
+    path_file_gth = os.path.join(root, f'{name}.xml')
+    return path_file_gth
