@@ -19,7 +19,7 @@ def slices_to_npy(snr: SNR, density: Density, slices_dir: str, dest_dir: str) ->
     :param dest_dir:
     :return:
     """
-    for t in range(TIME_INTERVAL):
+    for t in tqdm(range(TIME_INTERVAL)):
         img_list = []
         for z in range(DEPTH):
             im = cv2.imread(get_slice_path(snr, density, t, z, root=slices_dir), cv2.IMREAD_GRAYSCALE)
@@ -54,5 +54,7 @@ def make_raw_data(snr: SNR, density: Density, kernel: int, sigma: float, dest_di
         img_3d = np.load(get_data_path(snr, density, t))
         dir_name = compute_name(snr, density)
         data_name = compute_name(snr, density, t)
-        np.savez(os.path.join(dest_dir, dir_name, data_name), img=img_3d, target=target, gth=gth, snr=snr, density=density, t=t)
+        complete_path = os.path.join(dest_dir, dir_name, data_name)
+        os.makedirs(complete_path, exist_ok=True)
+        np.savez(complete_path, img=img_3d, target=target, gth=gth, snr=snr, density=density, t=t)
 
