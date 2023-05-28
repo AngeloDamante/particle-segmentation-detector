@@ -6,11 +6,12 @@ from typing import List, Tuple
 from preprocessing.analyser import extract_particles, query_particles
 from utils.Types import SNR, Density, Particle
 from utils.compute_path import get_gth_xml_path
-from utils.definitions import SIZE, TIME_INTERVAL
+from utils.definitions import SIZE, DEPTH
 
 WHITE_POINT = 255
 
-def segment_data(snr:SNR, density:Density, t:int, kernel:int, sigma:float) -> Tuple[np.ndarray, List[Particle]]:
+
+def segment_data(snr: SNR, density: Density, t: int, kernel: int, sigma: float) -> Tuple[np.ndarray, List[Particle]]:
     """Segment dataset with desired SNR and density
 
     :param snr:
@@ -31,7 +32,7 @@ def segment_data(snr:SNR, density:Density, t:int, kernel:int, sigma:float) -> Tu
     return img_3d, particles_t
 
 
-def gauss_conv(img_3d: np.ndarray, particles: List[Particle], kernel:int, sigma:float) -> np.ndarray:
+def gauss_conv(img_3d: np.ndarray, particles: List[Particle], kernel: int, sigma: float) -> np.ndarray:
     """Make segmentation with convolution using gaussian filter
 
     :param img_3d:
@@ -45,7 +46,7 @@ def gauss_conv(img_3d: np.ndarray, particles: List[Particle], kernel:int, sigma:
     kernel = np.exp(-(x ** 2 + y ** 2 + z ** 2) / (2 * sigma ** 2))
 
     for p in particles:
-        center = (round(p.x), round(p.y), np.clip(round(p.z), 0, 9))
+        center = (round(p.x), round(p.y), np.clip(round(p.z), 0, DEPTH - 1))
         img_3d[center] = WHITE_POINT
 
     filtered_left = signal.convolve(img_3d, kernel, mode="same").astype(np.uint8)
