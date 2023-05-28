@@ -1,15 +1,19 @@
 import logging
 import os
 import shutil
-from utils.definitions import DTS_DIR, DTS_TRAIN_PATH, DTS_TEST_PATH, DTS_VALIDATION_PATH, DTS_RAW_PATH,TIME_INTERVAL
+import argparse
+import json
 from utils.Types import SNR, Density
 from utils.logger import configure_logger
 from utils.compute_path import get_data_path
+from preprocessing.creation import make_raw_data
+from utils.definitions import DTS_DIR, DTS_TRAIN_PATH, DTS_TEST_PATH, DTS_VALIDATION_PATH, DTS_RAW_PATH, TIME_INTERVAL, \
+    CONFIG_DIR, mapDensity, mapSNR
 
 configure_logger(logging.INFO)
 
 
-def split_dataset(snr: SNR, density: Density, p_train: int=80):
+def split_dataset(snr: SNR, density: Density, p_train: int = 80):
     """Split dataset into training, testing, validation directories
 
         Input percentage  is the value for training. The rest of the percentage
@@ -41,50 +45,73 @@ def split_dataset(snr: SNR, density: Density, p_train: int=80):
         shutil.copy2(path, DTS_VALIDATION_PATH)
 
 
-def delete_folder(folder: str):
-    path_folder = os.path.join(DTS_DIR, folder)
-    for filename in os.listdir(path_folder):
-        file_path = os.path.join(path_folder, filename)
-        os.remove(file_path)
-
-
-def save_slices():
-    # TODO
-    pass
-
-
-def json_parser():
-    # TODO
-    pass
-
-my_snr = SNR.TYPE_7
-my_density = Density.LOW
-split_dataset(my_snr, my_density)
-
-
-# def _save_data(self, img_3d: np.ndarray, time: int, directory: str, save_img: bool):
-#     """ Save data
+# def delete_folder(folder: str):
+#     """Delete all elements in selcted folder
 #
-#     :param img_3d:
-#     :param time:
-#     :param directory:
-#     :param save_img:
+#     :param folder:
 #     :return:
 #     """
-#     # create dir data
-#     dir_data = os.path.join(DTS_SEG_DATA, directory)
-#     os.makedirs(dir_data, exist_ok=True)
-#
-#     # save npy
-#     np.save(os.path.join(dir_data, f't_{str(time).zfill(3)}'), img_3d)
-#
-#     # create img dir
-#     if not save_img: return
-#     dir_img = os.path.join(DTS_SEG_IMG, directory)
-#     os.makedirs(dir_img, exist_ok=True)
-#
-#     # save slices
-#     for depth in range(self.size[2]):
-#         img_name = f't_{str(time).zfill(3)}_z_{str(depth).zfill(2)}.tiff'
-#         img = Image.fromarray(img_3d[:, :, depth].astype(np.uint8))
-#         img.save(os.path.join(dir_img, img_name))
+#     path_folder = os.path.join(DTS_DIR, folder)
+#     for filename in os.listdir(path_folder):
+#         file_path = os.path.join(path_folder, filename)
+#         os.rmdir(file_path)
+
+
+def json_parser(path_file: str):
+    """Json parser to take settings
+
+    :param path_file:
+    :return:
+    """
+    dataset, training_set = [], []
+    train_settings = {}
+    with open(path_file, 'r') as json_file:
+        json_data = json.load(json_file)
+        if 'dataset' in json_data.keys(): dataset = json_data['dataset']
+        if 'training_set' in json_data.keys(): training_set = json_data['training_set']
+        if 'train_settings' in json_data.keys(): train_settings = json_data['train_settings']
+    return dataset, training_set, train_settings
+
+
+def main():
+    # parsing
+    parser = argparse.ArgumentParser()
+    default_config_file = os.path.join(CONFIG_DIR, 'make_raw_dataset.json')
+    parser.add_argument("-C", "--config", type=str, default=default_config_file, help=f"name of config in {CONFIG_DIR}")
+    args = parser.parse_args()
+    config_file = args.config
+
+    # integrity check
+    if not config_file.endswith('json'):
+        raise TypeError('config file must be a json file')
+    if not os.path.isfile(config_file):
+        raise ValueError('file not found')
+
+    # take setting from input json
+    dataset, training_set, train_settings = json_parser(os.path.join(CONFIG_DIR, config_file))
+
+    # make datset phase
+    if dataset:
+        logging.info('[ DATASET RAW CREATION ]')
+        shutil.rmtree(DTS_RAW_PATH, ignore_errors=True)
+        for dts in dataset:
+            snr = mapSNR[dts['snr']]
+            density = mapDensity[dts['density']]
+            logging.info(f'[ RAW ]: snr = {snr.value},  density = {density.value}')
+            make_raw_data(snr, density, dts['kernel'], dts['sigma'], dest_dir=DTS_RAW_PATH)
+
+    # make training dir
+    if training_set and train_settings:
+        logging.info('[ TRAINING DATASET CREATION ]')
+        shutil.rmtree(DTS_TRAIN_PATH, ignore_errors=True)
+        shutil.rmtree(DTS_TEST_PATH, ignore_errors=True)
+        shutil.rmtree(DTS_VALIDATION_PATH, ignore_errors=True)
+        for tr in training_set:
+            snr = mapSNR[tr['snr']]
+            density = mapDensity[tr['density']]
+            logging.info(f'[ TRAIN ]: snr = {snr.value},  density = {density.value}')
+            split_dataset(snr, density, train_settings['p_split'])
+
+
+if __name__ == '__main__':
+    main()
