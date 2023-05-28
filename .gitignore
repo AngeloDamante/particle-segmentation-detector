@@ -131,8 +131,7 @@ cython_debug/
 
 # Our Project
 /Dataset/*
-!Dataset/install_dataset.sh
-/Dataset_original
+!Dataset/install_dataset.py
 
 # ut
 /ut/*.png
