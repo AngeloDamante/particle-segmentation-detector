@@ -8,10 +8,12 @@ from torch.utils.data import Dataset
 from torchvision import transforms
 from torchvision.transforms import functional as F
 from utils.definitions import DTS_TRAIN_PATH
+from multipledispatch import dispatch
 import random
 
 
 class CustomToTensor(transforms.ToTensor):
+    @dispatch(np.ndarray, np.ndarray)
     def __call__(self, img, target) -> Any:
         return F.to_tensor(img), F.to_tensor(target)
 
@@ -31,6 +33,7 @@ class CustomVerticalFlip(transforms.RandomVerticalFlip):
 
 
 class CustomCompose(transforms.Compose):
+    @dispatch(np.ndarray, np.ndarray)
     def __call__(self, img, target) -> Any:
         for t in self.transforms:
             img, target = t(img, target)
@@ -56,9 +59,11 @@ class VirusDataset(Dataset):
         return {'img': img, 'target': target}
 
 
-# T = transforms.ToTensor
 T = CustomCompose([
-    CustomToTensor(),
     CustomHorizontalFlip(p=0.5),
     CustomVerticalFlip(p=0.5),
+    CustomToTensor()
 ])
+
+o_dts = VirusDataset(DTS_TRAIN_PATH, T)
+print(o_dts[2]['img'].shape)
