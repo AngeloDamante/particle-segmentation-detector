@@ -23,6 +23,7 @@ DTS_RAW_PATH = os.path.join(DTS_DIR, "Raw")
 DTS_TRAIN_PATH = os.path.join(DTS_DIR, "Train")
 DTS_TEST_PATH = os.path.join(DTS_DIR, "Test")
 DTS_VALIDATION_PATH = os.path.join(DTS_DIR, "Validation")
+DTS_ANALYZE_PATH = os.path.join(DTS_DIR, "Analyze")
 
 # dict to parsing
 mapSNR = {'snr_1': SNR.TYPE_1, 'snr_2': SNR.TYPE_2, 'snr_4': SNR.TYPE_4, 'snr_7': SNR.TYPE_7}
