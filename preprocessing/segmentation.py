@@ -52,33 +52,3 @@ def gauss_conv(img_3d: np.ndarray, particles: List[Particle], kernel:int, sigma:
     filtered_mirror = np.rot90(filtered_left, k=1, axes=(0, 1))
     filtered = np.flipud(filtered_mirror)
     return filtered
-
-
-# def create_dataset(snr: SNR, density: Density, save_img: bool = False) -> Tuple[List[np.ndarray], List[Particle]]:
-#     """Create Dataset
-#
-#     :param snr:
-#     :param density:
-#     :param save_img:
-#     :return:
-#     """
-#     # take particles
-#     path_gth = get_gth_xml_path(snr, density)
-#     particles = extract_particles(path_gth)
-#
-#     # initialize
-#     dts_img = []
-#     dts_gth = []
-#
-#     # make dirs
-#     os.makedirs(DTS_SEG_IMG, exist_ok=True)
-#     os.makedirs(DTS_SEG_DATA, exist_ok=True)
-#
-#     for t in tqdm(range(time_interval)):
-#         particles_t = query_particles(particles, (lambda pa, time=t: True if pa.t == time else False))
-#         img_3d = np.zeros(shape=(size[0], size[1], size[2]))  # (H,W,D)
-#         img_3d = _make_gauss(img_3d, particles_t)
-#         dts_img.append(img_3d)
-#         dts_gth.append(particles_t)
-#         _save_data(img_3d, t, f'{snr.value}_{str(density.value)}', save_img)
-#     return dts_img, dts_gth
