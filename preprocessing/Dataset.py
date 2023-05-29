@@ -1,10 +1,8 @@
 """Define Torch Dataset_original and Dataloader"""
 import os
-
-import torch
 import numpy as np
 from typing import Any
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 from torchvision.transforms import functional as F
 from utils.definitions import DTS_TRAIN_PATH
@@ -60,10 +58,12 @@ class VirusDataset(Dataset):
 
 
 T = CustomCompose([
+    CustomToTensor(),
     CustomHorizontalFlip(p=0.5),
-    CustomVerticalFlip(p=0.5),
-    CustomToTensor()
+    CustomVerticalFlip(p=0.5)
 ])
 
-o_dts = VirusDataset(DTS_TRAIN_PATH, T)
-print(o_dts[2]['img'].shape)
+# o_training_dts = VirusDataset(DTS_TRAIN_PATH, T)
+# o_training_dtl = DataLoader(o_training_dts, shuffle=True, batch_size=32)
+# for batch_idx, item in enumerate(o_training_dtl):
+#     print(f'i = {batch_idx}, item = {item["img"].shape}')
