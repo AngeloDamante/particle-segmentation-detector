@@ -5,7 +5,6 @@ import cv2
 from typing import List, Callable
 import numpy as np
 import xml.etree.ElementTree as ET
-import matplotlib.pyplot as plt
 from utils.Types import Particle
 
 
