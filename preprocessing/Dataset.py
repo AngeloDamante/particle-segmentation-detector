@@ -1,6 +1,8 @@
 """Define Torch Dataset_original and Dataloader"""
 import os
 import numpy as np
+import cv2
+import torch
 from typing import Any
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
@@ -65,5 +67,10 @@ T = CustomCompose([
 
 # o_training_dts = VirusDataset(DTS_TRAIN_PATH, T)
 # o_training_dtl = DataLoader(o_training_dts, shuffle=True, batch_size=32)
+# num_batch = 2
+# my_slice = list(o_training_dtl)[num_batch]['img'][1,1,:,:]
+# my_slice = my_slice * 255
+# cv2.imwrite('img.png', np.array(my_slice))
+
 # for batch_idx, item in enumerate(o_training_dtl):
 #     print(f'i = {batch_idx}, item = {item["img"].shape}')
