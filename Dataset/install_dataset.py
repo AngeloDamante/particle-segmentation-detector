@@ -29,3 +29,5 @@ for snr in mapSNR.values():
     for density in mapDensity.values():
         logging.info(f'processing: snr = {snr.value}, density = {density.value}')
         slices_to_npy(snr, density, DEFAULT_SLICES_PATH, DEFAULT_DATA_PATH)
+
+logging.info('[DONE]')
