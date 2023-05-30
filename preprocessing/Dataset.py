@@ -54,7 +54,7 @@ class VirusDataset(Dataset):
         data = np.load(os.path.join(self.dir_path, self.files[index]), allow_pickle=True)
         img = data['img'] / 255.0
         target = data['target'] / 255.0
-        if self.transform:
+        if self.transform is not None:
             img, target = self.transform(img, target)
         return {'img': img, 'target': target}
 
