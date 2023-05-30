@@ -1,8 +1,13 @@
 import unittest
 import os
 from utils.compute_path import compute_name, get_data_path, get_slice_path, get_gth_xml_path
-from utils.definitions import DEFAULT_DATA_PATH, DEFAULT_SLICES_PATH, DEFAULT_GTH_PATH, DTS_RAW_PATH
 from utils.Types import SNR, Density
+from utils.definitions import (
+    DEFAULT_DATA_PATH,
+    DEFAULT_SLICES_PATH,
+    DEFAULT_GTH_PATH,
+    DTS_RAW_PATH
+)
 
 
 class ComputePathTest(unittest.TestCase):

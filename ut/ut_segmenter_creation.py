@@ -3,7 +3,12 @@ import numpy as np
 from preprocessing.segmentation import segment_data, gauss_conv
 from preprocessing.creation import slices_to_npy, make_raw_data
 from utils.Types import SNR, Density, Particle
-from utils.definitions import SIZE, DEFAULT_SLICES_PATH, DTS_RAW_PATH, DEFAULT_DATA_PATH
+from utils.definitions import (
+    SIZE,
+    DEFAULT_SLICES_PATH,
+    DTS_RAW_PATH,
+    DEFAULT_DATA_PATH
+)
 
 
 class TestSegmenter(unittest.TestCase):
