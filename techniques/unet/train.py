@@ -5,32 +5,31 @@ import torch.optim as optim
 from tqdm import tqdm
 from techniques.unet.model import UNET
 from techniques.unet.net_utils import (
-    #     load_checkpoint,
-    #     save_checkpoint,
+    load_checkpoint,
+    save_checkpoint,
     get_loaders,
-    #     check_accuracy,
-    #     save_predictions_as_imgs
+    check_accuracy,
+    save_predictions_as_imgs
 )
 
 from utils.definitions import (
     DTS_TRAIN_PATH,
     DTS_VALIDATION_PATH,
     DTS_TEST_PATH,
-    DEPTH
+    DTS_ANALYZE_PATH,
+    DEPTH,
+    LEARNING_RATE,
+    DEVICE,
+    BATCH_SIZE,
+    NUM_EPOCHS,
+    NUM_WORKERS,
+    IMG_HEIGHT,
+    IMG_WIDTH,
+    PIN_MEMORY,
+    LOAD_MODEL
 )
 
 from preprocessing.Dataset import T
-
-# Hyperparameter
-LEARNING_RATE = 1e-4
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-BATCH_SIZE = 16
-NUM_EPOCHS = 3
-NUM_WORKERS = 2
-IMG_HEIGHT = 512
-IMG_WIDTH = 512
-PIN_MEMORY = True
-LOAD_MODEL = False
 
 
 def train_fn(loader, model, optimizer, loss_fn, scaler):
@@ -70,9 +69,25 @@ def main():
         pin_memory=PIN_MEMORY
     )
 
+    if LOAD_MODEL:
+        load_checkpoint(torch.load("my_checkpoint.pth.tar"), model)  # TODO filename
+    check_accuracy(val_loader, model, device=DEVICE)
     scaler = torch.cuda.amp.GradScaler()
-    for epoch in range(NUM_EPOCHS):
+    for _ in range(NUM_EPOCHS):
         train_fn(train_loader, model, optimizer, loss_fn, scaler)
+
+        # save model
+        checkpoint = {
+            "state_dict": model.state_dict(),
+            "optimizer": optimizer.state_dict(),
+        }
+        save_checkpoint(checkpoint)
+
+        # check accuracy
+        check_accuracy(val_loader, model, device=DEVICE)
+
+        # print some examples to a folder
+        save_predictions_as_imgs(val_loader, model, folder=DTS_ANALYZE_PATH, device=DEVICE)
 
 
 if __name__ == '__main__':
