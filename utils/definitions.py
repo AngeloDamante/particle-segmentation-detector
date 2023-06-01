@@ -3,11 +3,23 @@
 import os
 from pathlib import Path
 from utils.Types import SNR, Density
+import torch
 
 # sequence values
 HIGH, WIDTH, DEPTH = 512, 512, 10
 SIZE = (HIGH, WIDTH, DEPTH)
 TIME_INTERVAL = 100
+
+# Default Hyperparameter
+LEARNING_RATE = 1e-4
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+BATCH_SIZE = 16
+NUM_EPOCHS = 3
+NUM_WORKERS = 2
+IMG_HEIGHT = 512
+IMG_WIDTH = 512
+PIN_MEMORY = True
+LOAD_MODEL = False
 
 # main dirs
 ROOT_DIR = Path(__file__).absolute().parent.parent
