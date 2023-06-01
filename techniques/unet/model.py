@@ -85,7 +85,7 @@ class UNET(nn.Module):
 def test():
     x = torch.randn((3, DEPTH, 512, 512))
     model = UNET(in_channels=DEPTH, out_channels=DEPTH)
-    print(model)
+    # print(model)
     preds = model(x)
     print(preds.shape)
     print(x.shape)
