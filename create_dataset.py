@@ -13,19 +13,24 @@ from utils.definitions import DTS_DIR, DTS_TRAIN_PATH, DTS_TEST_PATH, DTS_VALIDA
 configure_logger(logging.INFO)
 
 
-def split_dataset(snr: SNR, density: Density, p_train: int = 80):
+def split_dataset(snr: SNR, density: Density, p_train: int = 80, is_test=True):
     """Split dataset into training, testing, validation directories
 
         Input percentage  is the value for training. The rest of the percentage
         is divided equally between testing and validation.
 
+    :param is_test:
     :param p_train: percentage of splitting for training
     :param density:
     :param snr:
     :return:
     """
-    p_test = (TIME_INTERVAL - p_train) // 2
-    p_val = p_test
+    p_test=0
+    if not is_test:
+        p_val=TIME_INTERVAL - p_train
+    else:
+        p_test = (TIME_INTERVAL - p_train) // 2
+        p_val = p_test
     os.makedirs(DTS_TRAIN_PATH, exist_ok=True)
     os.makedirs(DTS_TEST_PATH, exist_ok=True)
     os.makedirs(DTS_VALIDATION_PATH, exist_ok=True)
