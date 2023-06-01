@@ -52,8 +52,8 @@ class VirusDataset(Dataset):
 
     def __getitem__(self, index):
         data = np.load(os.path.join(self.dir_path, self.files[index]), allow_pickle=True)
-        img = data['img'] / 255.0
-        target = data['target'] / 255.0
+        img = np.divide(data['img'], 255.0, dtype=np.float32)
+        target = np.divide(data['target'], 255.0, dtype=np.float32)
         if self.transform is not None:
             img, target = self.transform(img, target)
         return {'img': img, 'target': target}
@@ -65,12 +65,19 @@ T = CustomCompose([
     CustomVerticalFlip(p=0.5)
 ])
 
-# o_training_dts = VirusDataset(DTS_TRAIN_PATH, T)
-# o_training_dtl = DataLoader(o_training_dts, shuffle=True, batch_size=32)
-# num_batch = 2
-# my_slice = list(o_training_dtl)[num_batch]['img'][1,1,:,:]
-# my_slice = my_slice * 255
-# cv2.imwrite('img.png', np.array(my_slice))
+def test():
+    o_training_dts = VirusDataset(DTS_TRAIN_PATH, T)
+    # print(len(o_training_dts))
+    o_training_dtl = DataLoader(o_training_dts, shuffle=True, batch_size=32)
+    # num_batch = 2
+    # my_slice = list(o_training_dtl)[num_batch]['img'][1,1,:,:]
+    # my_slice = my_slice * 255
+    # cv2.imwrite('img.png', np.array(my_slice))
 
-# for batch_idx, item in enumerate(o_training_dtl):
-#     print(f'i = {batch_idx}, item = {item["img"].shape}')
+    for item in o_training_dtl:
+        print(item['img'].shape)
+        print(item['target'].shape)
+        item['img'].to('cpu')
+
+    for batch_idx, item in enumerate(o_training_dtl):
+        print(f'i = {batch_idx}, item = {item["img"].shape}')
