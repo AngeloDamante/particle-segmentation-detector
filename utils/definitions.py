@@ -38,6 +38,10 @@ DTS_TEST_PATH = os.path.join(DTS_DIR, "Test")
 DTS_VALIDATION_PATH = os.path.join(DTS_DIR, "Validation")
 DTS_ANALYZE_PATH = os.path.join(DTS_DIR, "Analyze")
 
+# NET
+UNET_PATH = os.path.join(ROOT_DIR, "techniques", "unet")
+UNET_RESULTS_PATH = os.path.join(UNET_PATH, "Results")
+
 # dict to parsing
 mapSNR = {'snr_1': SNR.TYPE_1, 'snr_2': SNR.TYPE_2, 'snr_4': SNR.TYPE_4, 'snr_7': SNR.TYPE_7}
 mapDensity = {'density_low': Density.LOW, 'density_mid': Density.MID, 'density_high': Density.HIGH}
