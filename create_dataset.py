@@ -7,8 +7,17 @@ from utils.Types import SNR, Density
 from utils.logger import configure_logger
 from utils.compute_path import get_data_path
 from preprocessing.creation import make_raw_data
-from utils.definitions import DTS_DIR, DTS_TRAIN_PATH, DTS_TEST_PATH, DTS_VALIDATION_PATH, DTS_RAW_PATH, TIME_INTERVAL, \
-    CONFIG_DIR, mapDensity, mapSNR
+from utils.definitions import (
+    DTS_DIR,
+    DTS_TRAIN_PATH,
+    DTS_TEST_PATH,
+    DTS_VALIDATION_PATH,
+    DTS_RAW_PATH,
+    TIME_INTERVAL,
+    CONFIG_DIR,
+    mapDensity,
+    mapSNR
+)
 
 configure_logger(logging.INFO)
 
@@ -25,9 +34,9 @@ def split_dataset(snr: SNR, density: Density, p_train: int = 80, is_test=True):
     :param snr:
     :return:
     """
-    p_test=0
+    p_test = 0
     if not is_test:
-        p_val=TIME_INTERVAL - p_train
+        p_val = TIME_INTERVAL - p_train
     else:
         p_test = (TIME_INTERVAL - p_train) // 2
         p_val = p_test
@@ -48,18 +57,6 @@ def split_dataset(snr: SNR, density: Density, p_train: int = 80, is_test=True):
         t = p_train + p_test + time
         path = get_data_path(snr, density, t=t, is_npz=True, root=DTS_RAW_PATH)
         shutil.copy2(path, DTS_VALIDATION_PATH)
-
-
-# def delete_folder(folder: str):
-#     """Delete all elements in selcted folder
-#
-#     :param folder:
-#     :return:
-#     """
-#     path_folder = os.path.join(DTS_DIR, folder)
-#     for filename in os.listdir(path_folder):
-#         file_path = os.path.join(path_folder, filename)
-#         os.rmdir(file_path)
 
 
 def json_parser(path_file: str):
