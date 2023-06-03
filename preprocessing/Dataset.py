@@ -65,6 +65,8 @@ T = CustomCompose([
     CustomVerticalFlip(p=0.5)
 ])
 
+TD = CustomToTensor()
+
 def test():
     o_training_dts = VirusDataset(DTS_TRAIN_PATH, T)
     # print(len(o_training_dts))
