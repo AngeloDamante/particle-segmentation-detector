@@ -13,7 +13,7 @@ TIME_INTERVAL = 100
 # Default Hyperparameter
 LEARNING_RATE = 1e-4
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-BATCH_SIZE = 16
+BATCH_SIZE = 1
 NUM_EPOCHS = 3
 NUM_WORKERS = 2
 IMG_HEIGHT = 512
@@ -41,6 +41,8 @@ DTS_ANALYZE_PATH = os.path.join(DTS_DIR, "Analyze")
 # NET
 UNET_PATH = os.path.join(ROOT_DIR, "techniques", "unet")
 UNET_RESULTS_PATH = os.path.join(UNET_PATH, "Results")
+UNET_RESULTS_IMAGES = os.path.join(UNET_RESULTS_PATH, "Images")
+UNET_RESULTS_CHECKPOINTS = os.path.join(UNET_RESULTS_PATH, "Checkpoints")
 
 # dict to parsing
 mapSNR = {'snr_1': SNR.TYPE_1, 'snr_2': SNR.TYPE_2, 'snr_4': SNR.TYPE_4, 'snr_7': SNR.TYPE_7}
