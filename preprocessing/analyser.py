@@ -4,6 +4,8 @@ import os
 import cv2
 from typing import List, Callable
 import numpy as np
+import torch
+import torchvision
 import xml.etree.ElementTree as ET
 from utils.Types import Particle
 
@@ -54,3 +56,20 @@ def draw_particles(img_3d: np.ndarray, particles: List[Particle]) -> np.ndarray:
         cv2.putText(_slice, text=str(particle.z), org=(x, y), fontFace=cv2.FONT_ITALIC, fontScale=0.4, color=WHITE)
         img[:, :, z] = _slice
     return img
+
+
+def save_slices(img: torch.Tensor, path: str, img_name: str = None):
+    """Save slices as torch grid
+
+    :param img:
+    :param path:
+    :param img_name:
+    :return:
+    """
+    if img_name is None: img_name = "img.png"
+    img = img.squeeze(0)
+    img = img.unsqueeze(1)
+    img[img != 0] = 255
+    img = 1 - img
+    os.makedirs(path, exist_ok=True)
+    torchvision.utils.save_image(tensor=img, fp=os.path.join(path, img_name), nrow=5, padding=10)
