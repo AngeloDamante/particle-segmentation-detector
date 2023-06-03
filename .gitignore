@@ -133,6 +133,9 @@ cython_debug/
 /Dataset/*
 !Dataset/install_dataset.py
 
+# unet
+techniques/unet/Results/
+
 # ut
 /ut/*.png
 

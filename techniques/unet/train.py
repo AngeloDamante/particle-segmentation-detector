@@ -23,6 +23,7 @@ from utils.definitions import (
     NUM_WORKERS,
     UNET_PATH,
     UNET_RESULTS_PATH,
+    UNET_RESULTS_CHECKPOINTS,
     IMG_HEIGHT,
     IMG_WIDTH,
     PIN_MEMORY,
@@ -31,7 +32,7 @@ from utils.definitions import (
 
 from preprocessing.Dataset import T
 
-CHECKPOINT_NAME = "checkpoint.pth.tar"
+# CHECKPOINT_NAME = "checkpoint.pth.tar"
 
 
 def train_fn(loader, model, optimizer, loss_fn, scaler):
@@ -67,7 +68,7 @@ def train_fn(loader, model, optimizer, loss_fn, scaler):
         loop.set_postfix()
 
 
-def main():
+def main(checkpoint_file: str = None):
     # define all elements for training
     model = UNET(in_channels=DEPTH, out_channels=DEPTH).to(DEVICE)
     loss_fn = nn.CrossEntropyLoss()  # not binary
@@ -87,12 +88,11 @@ def main():
 
     # define train dir
     train_name = datetime.datetime.today().strftime('day_%d_%m_%Y_time_%H_%M_%S')
-    dir_train = os.path.join(UNET_RESULTS_PATH, train_name)
-    os.makedirs(dir_train)
+    os.makedirs(UNET_RESULTS_CHECKPOINTS, exist_ok=True)
 
-    if LOAD_MODEL:
+    if checkpoint_file is not None:
         print("=> Loading checkpoint")
-        checkpoint = torch.load(os.path.join(UNET_PATH, CHECKPOINT_NAME))
+        checkpoint = torch.load(checkpoint_file)
         model.load_state_dict(checkpoint["state_dict"])
         check_accuracy(val_loader, model, device=DEVICE)  # TODO
         # load_checkpoint(torch.load("my_checkpoint.pth.tar"), model)
@@ -104,7 +104,7 @@ def main():
         # save model
         checkpoint = {"state_dict": model.state_dict(), "optimizer": optimizer.state_dict()}
         print("=> Saving checkpoint")
-        torch.save(checkpoint, CHECKPOINT_NAME)
+        torch.save(checkpoint, os.path.join(UNET_RESULTS_CHECKPOINTS, f'{train_name}.pth.tar'))
 
         # check accuracy
         check_accuracy(val_loader, model, device=DEVICE)
