@@ -46,7 +46,7 @@ def draw_particles(img_3d: np.ndarray, particles: List[Particle]) -> np.ndarray:
     :return:
     """
     img = img_3d.copy()
-    WHITE = (255, 255, 255)
+    WHITE = (255, 255, 255) # TODO: perchè 3 canali (rgb)? Non dovrebbe essere tutto monocanale (scala di grigi)?
     for particle in particles:
         x = np.clip(round(particle.x), 0, img_3d.shape[0] - 1)
         y = np.clip(round(particle.y), 0, img_3d.shape[1] - 1)
