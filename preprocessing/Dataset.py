@@ -40,6 +40,16 @@ class CustomCompose(transforms.Compose):
         return img, target
 
 
+# default transformations
+train_transform = CustomCompose([
+    CustomToTensor(),
+    CustomHorizontalFlip(p=0.5),
+    CustomVerticalFlip(p=0.5)
+])
+
+val_transform = CustomToTensor()
+
+
 # dataset
 class VirusDataset(Dataset):
     def __init__(self, dir_path: str, transform=None):
@@ -58,14 +68,6 @@ class VirusDataset(Dataset):
             img, target = self.transform(img, target)
         return {'img': img, 'target': target}
 
-
-T = CustomCompose([
-    CustomToTensor(),
-    CustomHorizontalFlip(p=0.5),
-    CustomVerticalFlip(p=0.5)
-])
-
-TD = CustomToTensor()
 
 def test():
     o_training_dts = VirusDataset(DTS_TRAIN_PATH, T)

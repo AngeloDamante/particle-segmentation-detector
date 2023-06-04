@@ -30,7 +30,7 @@ from utils.definitions import (
     LOAD_MODEL
 )
 
-from preprocessing.Dataset import T
+from preprocessing.Dataset import train_transform, val_transform
 
 # CHECKPOINT_NAME = "checkpoint.pth.tar"
 
@@ -53,13 +53,14 @@ def train_fn(loader, model, optimizer, loss_fn, scaler):
         data = item['img'].to(device=DEVICE)
         targets = item['target'].float().to(device=DEVICE)
 
+        optimizer.zero_grad()
+
         # forward
         with torch.cuda.amp.autocast():
             predictions = model(data)
             loss = loss_fn(predictions, targets)
 
         # backward
-        optimizer.zero_grad()
         scaler.scale(loss).backward()
         scaler.step(optimizer)
         scaler.update()
@@ -71,7 +72,8 @@ def train_fn(loader, model, optimizer, loss_fn, scaler):
 def main(checkpoint_file: str = None):
     # define all elements for training
     model = UNET(in_channels=DEPTH, out_channels=DEPTH).to(DEVICE)
-    loss_fn = nn.CrossEntropyLoss()  # not binary
+    # loss_fn = nn.CrossEntropyLoss()
+    loss_fn = nn.BCEWithLogitsLoss()
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
     scaler = torch.cuda.amp.GradScaler()
 
@@ -80,8 +82,8 @@ def main(checkpoint_file: str = None):
         train_path=DTS_TRAIN_PATH,
         val_path=DTS_VALIDATION_PATH,
         batch_size=BATCH_SIZE,
-        train_transforms=T,
-        val_transforms=T,
+        train_transforms=train_transform,
+        val_transforms=val_transform,
         num_workers=NUM_WORKERS,
         pin_memory=PIN_MEMORY  # to improve speedup to transfer data from cpu to gpu
     )
