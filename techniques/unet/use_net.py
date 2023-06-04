@@ -14,9 +14,10 @@ from utils.definitions import (
 )
 
 
-def test_fn(model: torch.nn.Module, snr: SNR, density: Density, t: int):
+def use_net(model: torch.nn.Module, snr: SNR, density: Density, t: int):
     model.eval()
-    img = torch.from_numpy(np.load(get_data_path(snr, density, t))).float()
+    img = np.divide(np.load(get_data_path(snr, density, t)), 255.0, dtype=np.float32)
+    img = torch.from_numpy(img)
     img = torch.reshape(img, (DEPTH, IMG_HEIGHT, IMG_WIDTH))
     img = img.unsqueeze(0)
 
@@ -33,12 +34,12 @@ def main():
     t = 0
 
     # model settings
-    checkpoint_name = 'day_03_06_2023_time_18_49_30.pth.tar'
+    checkpoint_name = 'day_04_06_2023_time_12_35_16.pth.tar'
     model = UNET(in_channels=DEPTH, out_channels=DEPTH)
     data_model = torch.load(os.path.join(UNET_RESULTS_CHECKPOINTS, checkpoint_name))
     model.load_state_dict(data_model['state_dict'])
 
-    test_fn(model, snr, density, t)
+    use_net(model, snr, density, t)
 
 
 if __name__ == '__main__':
