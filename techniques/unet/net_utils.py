@@ -72,8 +72,8 @@ def check_accuracy(loader, model, device="cuda"):
             # x = x.to(device)
             # y = y.to(device).unsqueeze(1)
 
-            preds = torch.sigmoid(model(x)) # io metterei la sigmoide proprio come funzione di attivazione finale cosi hai sempre valori fra zero e uno
-            preds = (preds > 0.5).float() 
+            preds = torch.sigmoid(model(x))
+            preds = (preds > 0.5).float() # TODO: prima testa la loss, poi thresholda
             
             # TODO: aggiungere calcolo della loss sul validation.
 
