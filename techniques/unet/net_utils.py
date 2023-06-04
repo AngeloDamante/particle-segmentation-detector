@@ -73,7 +73,9 @@ def check_accuracy(loader, model, device="cuda"):
             # y = y.to(device).unsqueeze(1)
 
             preds = torch.sigmoid(model(x))
-            preds = (preds > 0.5).float()
+            preds = (preds > 0.5).float() # TODO: prima testa la loss, poi thresholda
+            
+            # TODO: aggiungere calcolo della loss sul validation.
 
             num_correct += (preds == y.round()).sum()  # TODO
             num_pixels += torch.numel(preds)

@@ -59,13 +59,13 @@ class VirusDataset(Dataset):
         return {'img': img, 'target': target}
 
 
-T = CustomCompose([
-    CustomToTensor(),
+T = CustomCompose([ # FIXME: metti un nome piu pythoniano tipo train_transform
     CustomHorizontalFlip(p=0.5),
-    CustomVerticalFlip(p=0.5)
+    CustomVerticalFlip(p=0.5),
+    CustomToTensor(), # Normalmente si mette per ultimo il ToTensor. E' solo un fatto di stile, poi non cambia una minchia.
 ])
 
-TD = CustomToTensor()
+TD = CustomToTensor() # FIXME: metti un nome piu pythoniano tipo val_transform
 
 def test():
     o_training_dts = VirusDataset(DTS_TRAIN_PATH, T)
