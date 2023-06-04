@@ -26,9 +26,8 @@ class DoubleConv(nn.Module):
 
 
 class UNET(nn.Module):
-    def __init__(self, in_channels=DEPTH, out_channels=1, features=None):
+    def __init__(self, in_channels=DEPTH, out_channels=1, features=(64, 128, 256, 512):
         super(UNET, self).__init__()
-        if features is None: features = [64, 128, 256, 512]
 
         # operations
         self.ups = nn.ModuleList()
