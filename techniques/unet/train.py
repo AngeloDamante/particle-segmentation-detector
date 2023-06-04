@@ -59,7 +59,7 @@ def train_fn(loader, model, optimizer, loss_fn, scaler):
             loss = loss_fn(predictions, targets)
 
         # backward
-        optimizer.zero_grad()
+        optimizer.zero_grad() # questo in genere si mette prima del forward, io lo sposterei a riga 55 per capirci.
         scaler.scale(loss).backward()
         scaler.step(optimizer)
         scaler.update()
@@ -71,9 +71,9 @@ def train_fn(loader, model, optimizer, loss_fn, scaler):
 def main(checkpoint_file: str = None):
     # define all elements for training
     model = UNET(in_channels=DEPTH, out_channels=DEPTH).to(DEVICE)
-    loss_fn = nn.CrossEntropyLoss()  # not binary
+    loss_fn = nn.CrossEntropyLoss()  # TODO: questa non va bene. usa questa https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    scaler = torch.cuda.amp.GradScaler()
+    scaler = torch.cuda.amp.GradScaler(enabled=USE_AMP) # TODO: per debuggare prima testa senza amp. Una volta che funziona usa amp.
 
     # import loader for train and validation
     train_loader, val_loader = get_loaders(
@@ -81,7 +81,7 @@ def main(checkpoint_file: str = None):
         val_path=DTS_VALIDATION_PATH,
         batch_size=BATCH_SIZE,
         train_transforms=T,
-        val_transforms=T,
+        val_transforms=T, # TODO: NON SI TESTA CON DATA AUGMENTATION ZIOCANNNN
         num_workers=NUM_WORKERS,
         pin_memory=PIN_MEMORY  # to improve speedup to transfer data from cpu to gpu
     )
