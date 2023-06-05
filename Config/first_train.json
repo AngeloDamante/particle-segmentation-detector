@@ -1,0 +1,14 @@
+{
+  "train_settings": {
+    "p_split": 80,
+    "is_test": false,
+    "batch": 16,
+    "num_workers": 4
+  },
+  "training_set": [
+    {
+      "snr": "snr_7",
+      "density": "density_low"
+    }
+  ]
+}
