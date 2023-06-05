@@ -70,21 +70,3 @@ def comparison(x: np.ndarray, y: np.ndarray, save_dir: str):
     for z in range(x.shape[2]):
         cmp_img = np.hstack((x[:, :, z], y[:, :, z]))
         cv2.imwrite(os.path.join(save_dir, f'{str(z).zfill(3)}.png'), cmp_img)
-
-
-# def save_slices(img: torch.Tensor, path: str, img_name: str = None):
-#     """Save slices as torch grid
-#
-#     :param img:
-#     :param path:
-#     :param img_name:
-#     :return:
-#     """
-#     if img_name is None: img_name = "img.png"
-#
-#     img = img.squeeze(0)
-#     img = img.unsqueeze(1)
-#     # img[img != 0] = 255
-#     # img = 1 - img
-#     os.makedirs(path, exist_ok=True)
-#     torchvision.utils.save_image(tensor=img, fp=os.path.join(path, img_name), nrow=5, padding=10)
