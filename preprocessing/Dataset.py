@@ -1,4 +1,5 @@
 """Define Torch Dataset_original and Dataloader"""
+
 import os
 import numpy as np
 import cv2
@@ -7,11 +8,12 @@ from typing import Any
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 from torchvision.transforms import functional as F
-from utils.definitions import DTS_TRAIN_PATH
+from utils.definitions import DTS_TRAIN_PATH, DTS_VALIDATION_PATH
 from multipledispatch import dispatch
 import random
 
 
+# custom transforms
 class CustomToTensor(transforms.ToTensor):
     @dispatch(np.ndarray, np.ndarray)
     def __call__(self, img, target) -> Any:
@@ -45,7 +47,7 @@ train_transform = CustomCompose([
     CustomToTensor(),
     CustomHorizontalFlip(p=0.5),
     CustomVerticalFlip(p=0.5)
-])
+])  # TODO normalize!
 
 val_transform = CustomToTensor()
 
@@ -64,20 +66,16 @@ class VirusDataset(Dataset):
         data = np.load(os.path.join(self.dir_path, self.files[index]), allow_pickle=True)
         img = np.divide(data['img'], 255.0, dtype=np.float32)
         target = np.divide(data['target'], 255.0, dtype=np.float32)
+        img = data['img']
+        target = data['target']
         if self.transform is not None:
             img, target = self.transform(img, target)
         return {'img': img, 'target': target}
 
 
 def test():
-    o_training_dts = VirusDataset(DTS_TRAIN_PATH, T)
-    # print(len(o_training_dts))
+    o_training_dts = VirusDataset(DTS_TRAIN_PATH, train_transform)
     o_training_dtl = DataLoader(o_training_dts, shuffle=True, batch_size=32)
-    # num_batch = 2
-    # my_slice = list(o_training_dtl)[num_batch]['img'][1,1,:,:]
-    # my_slice = my_slice * 255
-    # cv2.imwrite('img.png', np.array(my_slice))
-
     for item in o_training_dtl:
         print(item['img'].shape)
         print(item['target'].shape)
