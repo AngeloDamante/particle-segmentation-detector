@@ -1,3 +1,5 @@
+"""Define utility for network"""
+
 import torch
 import torchvision
 from preprocessing.Dataset import VirusDataset
@@ -40,49 +42,37 @@ def get_loaders(train_path, val_path, batch_size, train_transforms, val_transfor
     return train_dtl, val_dtl
 
 
-# def save_checkpoint(state, filename="my_checkpoint.pth.tar"):
-#     print("=> Saving checkpoint")
-#     torch.save(state, filename)
-
-#
-# def load_checkpoint(checkpoint, model):
-#     print("=> Loading checkpoint")
-#     model.load_state_dict(checkpoint["state_dict"])
-
-
-def check_accuracy(loader, model, device="cuda"):
-    """Check Accuracy
+def val_fn(loader, model, loss, device="cuda"):
+    """ Validate Function
 
     :param loader:
     :param model:
+    :param loss:
     :param device:
     :return:
     """
-    num_correct = 0
-    num_pixels = 0
-    dice_score = 0
+    dice_score = 0.0
+    val_loss = 0.0
 
     # switch to evaluation mode
     model.eval()
 
-    with torch.no_grad():
+    with torch.no_grad(), torch.cuda.amp.autocast():
         for data in loader:
             x = data['img'].to(device)
             y = data['target'].to(device)
-            # x = x.to(device)
-            # y = y.to(device).unsqueeze(1)
 
-            preds = torch.sigmoid(model(x))
-            preds = (preds > 0.5).float()
-
-            num_correct += (preds == y.round()).sum()  # TODO
-            num_pixels += torch.numel(preds)
+            preds = model(x)
+            val_loss += loss(preds, y)
+            preds = torch.sigmoid(preds)
 
             # IoU equivalent for segmentation
-            dice_score += (2 * (preds * y).sum()) / ((preds + y).sum() + 1e-8)
+            dice_score += (2 * (preds * y).sum()) / ((preds + y).sum() + 1e-8)  # FIXME
 
-    print(f"Got {num_correct}/{num_pixels} with accuracy {num_correct / num_pixels * 100:.2f}")
-    print(f"Dice score: {dice_score / len(loader)}")
+            # TODO serve qualcosa per verificare che le particelle trovate sono quelle della gth
+
+        print(f'val loss: {val_loss / len(loader)}')
+        print(f"Dice score: {dice_score / len(loader)}")
 
     # switch to train mode
     model.train()
