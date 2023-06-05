@@ -51,7 +51,7 @@ def make_raw_data(snr: SNR, density: Density, kernel: int, sigma: float, dest_di
     """
     for t in tqdm(range(TIME_INTERVAL)):
         target, gth = segment_data(snr, density, t, kernel, sigma)
-        img_3d = np.load(get_data_path(snr, density, t))
+        img_3d = np.load(get_data_path(snr, density, t), allow_pickle=True)
         dir_name = compute_name(snr, density)
         os.makedirs(os.path.join(dest_dir, dir_name), exist_ok=True)
         data_name = compute_name(snr, density, t)
