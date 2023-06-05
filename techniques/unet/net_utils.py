@@ -1,5 +1,6 @@
 """Define utility for network"""
 
+import os
 import torch
 import torchvision
 from preprocessing.Dataset import VirusDataset
@@ -63,16 +64,29 @@ def val_fn(loader, model, loss, device="cuda"):
             y = data['target'].to(device)
 
             preds = model(x)
-            val_loss += loss(preds, y)
+            val_loss += loss(preds, y).item()
             preds = torch.sigmoid(preds)
 
             # IoU equivalent for segmentation
-            dice_score += (2 * (preds * y).sum()) / ((preds + y).sum() + 1e-8)  # FIXME
+            dice_score += (2 * (preds * y).sum()) / ((preds + y).sum() + 1e-8)
 
-            # TODO serve qualcosa per verificare che le particelle trovate sono quelle della gth
+            # TODO serve qualcosa per verificare che le particelle trovate siano quelle della gth
+            # TODO la dice score forse non fa per noi
 
         print(f'val loss: {val_loss / len(loader)}')
         print(f"Dice score: {dice_score / len(loader)}")
 
     # switch to train mode
+    model.train()
+
+
+def save_preds_as_imgs(loader, model, folder, device="cuda"):
+    model.eval()
+    for idx, data in enumerate(loader):
+        x = data['img'].to(device)
+        y = data['target'].to(device)
+        with torch.no_grad():
+            preds = torch.sigmoid(model(x))  # FIXME (1,1,10)
+        torchvision.utils.save_image(preds, os.path.join(folder, f'pred_{idx}.png'))
+        torchvision.utils.save_image(y.unsqueeze(1), f"{folder}{idx}.png")
     model.train()
