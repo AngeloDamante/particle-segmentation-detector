@@ -28,10 +28,10 @@ class TestSegmenter(unittest.TestCase):
 
 class TestCreation(unittest.TestCase):
     def test_slices_to_npy(self):
-        slices_to_npy(SNR.TYPE_7, Density.LOW, DEFAULT_SLICES_PATH, DEFAULT_DATA_PATH)
+        slices_to_npy(SNR.TYPE_7, Density.MID, DEFAULT_SLICES_PATH, DEFAULT_DATA_PATH)
 
     def test_make_raw_data(self):
-        make_raw_data(SNR.TYPE_7, Density.LOW, kernel=3, sigma=0.5, dest_dir=DTS_RAW_PATH)
+        make_raw_data(SNR.TYPE_7, Density.HIGH, kernel=3, sigma=0.5, dest_dir=DTS_RAW_PATH)
 
 
 if __name__ == '__main__':

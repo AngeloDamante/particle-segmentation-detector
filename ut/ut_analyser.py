@@ -2,14 +2,19 @@ import unittest
 import cv2
 import os
 import numpy as np
-from preprocessing.analyser import extract_particles, query_particles, draw_particles
+import torch
+import torchvision
 from utils.Types import SNR, Density
-from utils.compute_path import get_gth_xml_path, get_data_path
+from utils.compute_path import get_gth_xml_path, get_data_path, compute_name
 from utils.definitions import DTS_RAW_PATH, DTS_ANALYZE_PATH
+from preprocessing.analyser import (
+    extract_particles,
+    query_particles,
+    draw_particles
+)
 
 
 class PreprocessingUT(unittest.TestCase):
-
     def test_extract_particles(self):
         my_path_xml = get_gth_xml_path(SNR.TYPE_7, Density.LOW)
         my_particles = extract_particles(my_path_xml)
@@ -33,6 +38,7 @@ class PreprocessingUT(unittest.TestCase):
         gth = list(data['gth'])
         img_3d_with_particles = draw_particles(img_3d, gth)
         for i in range(img_3d_with_particles.shape[2]):
+            os.makedirs(DTS_ANALYZE_PATH, exist_ok=True)
             cv2.imwrite(os.path.join(DTS_ANALYZE_PATH, f"slice_{i}.png"), img_3d_with_particles[:, :, i])
         self.assertTrue(gth)
         self.assertEqual(img_3d.shape, img_3d_with_particles.shape)
