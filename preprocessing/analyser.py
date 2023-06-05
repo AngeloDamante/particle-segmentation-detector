@@ -46,7 +46,7 @@ def draw_particles(img_3d: np.ndarray, particles: List[Particle]) -> np.ndarray:
     :return:
     """
     img = img_3d.copy()
-    WHITE = (255, 255, 255)
+    WHITE = 255
     for particle in particles:
         x = np.clip(round(particle.x), 0, img_3d.shape[0] - 1)
         y = np.clip(round(particle.y), 0, img_3d.shape[1] - 1)
@@ -58,18 +58,33 @@ def draw_particles(img_3d: np.ndarray, particles: List[Particle]) -> np.ndarray:
     return img
 
 
-def save_slices(img: torch.Tensor, path: str, img_name: str = None):
-    """Save slices as torch grid
+def comparison(x: np.ndarray, y: np.ndarray, save_dir: str):
+    """Comparison viewer between x and y
 
-    :param img:
-    :param path:
-    :param img_name:
+    :param x:
+    :param y:
+    :param save_dir:
     :return:
     """
-    if img_name is None: img_name = "img.png"
-    img = img.squeeze(0)
-    img = img.unsqueeze(1)
-    img[img != 0] = 255
-    img = 1 - img
-    os.makedirs(path, exist_ok=True)
-    torchvision.utils.save_image(tensor=img, fp=os.path.join(path, img_name), nrow=5, padding=10)
+    os.makedirs(save_dir, exist_ok=True)
+    for z in range(x.shape[2]):
+        cmp_img = np.hstack((x[:, :, z], y[:, :, z]))
+        cv2.imwrite(os.path.join(save_dir, f'{str(z).zfill(3)}.png'), cmp_img)
+
+
+# def save_slices(img: torch.Tensor, path: str, img_name: str = None):
+#     """Save slices as torch grid
+#
+#     :param img:
+#     :param path:
+#     :param img_name:
+#     :return:
+#     """
+#     if img_name is None: img_name = "img.png"
+#
+#     img = img.squeeze(0)
+#     img = img.unsqueeze(1)
+#     # img[img != 0] = 255
+#     # img = 1 - img
+#     os.makedirs(path, exist_ok=True)
+#     torchvision.utils.save_image(tensor=img, fp=os.path.join(path, img_name), nrow=5, padding=10)
