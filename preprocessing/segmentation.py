@@ -49,7 +49,7 @@ def gauss_conv(img_3d: np.ndarray, particles: List[Particle], kernel: int, sigma
         center = (round(p.x), round(p.y), np.clip(round(p.z), 0, DEPTH - 1))
         img_3d[center] = WHITE_POINT
 
-    filtered_left = signal.convolve(img_3d, kernel, mode="same").astype(np.uint8)
+    filtered_left = signal.convolve(np.clip(img_3d, 0, 255), kernel, mode="same").astype(np.uint8)
     filtered_mirror = np.rot90(filtered_left, k=1, axes=(0, 1))
     filtered = np.flipud(filtered_mirror)
     return filtered
