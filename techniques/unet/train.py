@@ -6,9 +6,11 @@ import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
 from techniques.unet.model import UNET
+from preprocessing.Dataset import train_transform, val_transform
 from techniques.unet.net_utils import (
     get_loaders,
     val_fn,
+    save_preds_as_imgs
 )
 
 from utils.definitions import (
@@ -29,10 +31,6 @@ from utils.definitions import (
     PIN_MEMORY,
     LOAD_MODEL
 )
-
-from preprocessing.Dataset import train_transform, val_transform
-
-CHECKPOINT_NAME = "checkpoint.pth.tar"
 
 
 def train_fn(loader, model, optimizer, loss_fn, scaler):
@@ -63,13 +61,12 @@ def train_fn(loader, model, optimizer, loss_fn, scaler):
         scaler.update()
 
         # update tqdm loop
-        pbar.set_description(f"Processing {batch_idx}/{len(loader)}, train_loss = {loss.item()}")
+        pbar.set_description(f"Processing {batch_idx + 1}/{len(loader)}, train_loss = {loss.item()}")
 
 
 def main():
     # define all elements for training
     model = UNET(in_channels=DEPTH, out_channels=DEPTH).to(DEVICE)
-    # loss_fn = nn.CrossEntropyLoss()
     loss_fn = nn.BCEWithLogitsLoss()
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
     scaler = torch.cuda.amp.GradScaler()
@@ -87,16 +84,19 @@ def main():
 
     # define train dir
     train_name = datetime.datetime.today().strftime('day_%d_%m_%Y_time_%H_%M_%S')
-    os.makedirs(UNET_RESULTS_CHECKPOINTS, exist_ok=True)  # FIXME useless
+    os.makedirs(UNET_RESULTS_CHECKPOINTS, exist_ok=True)
 
     if LOAD_MODEL:
         print("=> Loading checkpoint")
-        checkpoint = torch.load(CHECKPOINT_NAME)
+        checkpoint_name = os.listdir(UNET_RESULTS_CHECKPOINTS)[-1]
+        checkpoint = torch.load(os.path.join(UNET_RESULTS_CHECKPOINTS, checkpoint_name))
         model.load_state_dict(checkpoint["state_dict"])
         val_fn(val_loader, model, loss_fn, device=DEVICE)
 
     # start training
-    for _ in range(NUM_EPOCHS):
+    for epoch in range(NUM_EPOCHS):
+        # train
+        print(f'epoch = {epoch}/{NUM_EPOCHS}')
         train_fn(train_loader, model, optimizer, loss_fn, scaler)
 
         # save model
@@ -104,11 +104,11 @@ def main():
         print("=> Saving checkpoint")
         torch.save(checkpoint, os.path.join(UNET_RESULTS_CHECKPOINTS, f'{train_name}.pth.tar'))
 
-        # check accuracy
+        # validation
         val_fn(val_loader, model, loss_fn, device=DEVICE)
 
-        # save
-        # TODO save slices!
+        # save images
+        save_preds_as_imgs(val_loader, model, DTS_ANALYZE_PATH)
 
 
 if __name__ == '__main__':
