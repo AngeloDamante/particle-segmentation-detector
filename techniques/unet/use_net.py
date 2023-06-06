@@ -3,7 +3,7 @@
 import os
 import numpy as np
 import torch.cuda
-from preprocessing.analyser import comparison
+from preprocessing.analyser import comparison_pred
 from utils.Types import SNR, Density
 from utils.compute_path import get_data_path, compute_name
 from techniques.unet.model import UNET
@@ -22,6 +22,7 @@ def use_net(model: torch.nn.Module, snr: SNR, density: Density, t: int):
     # TODO normalize!
     data = np.load(get_data_path(snr, density, t, is_npz=True, root=DTS_RAW_PATH))
     x = data['img']
+    x_orig = x.copy()
     y = data['target']
     x = np.divide(x, 255.0, dtype=np.float32)
     x = torch.from_numpy(x)
@@ -32,16 +33,18 @@ def use_net(model: torch.nn.Module, snr: SNR, density: Density, t: int):
         y_hat = torch.permute(preds, (1, 2, 0)).numpy() * 255
 
         # TODO need something to save slices
-        comparison(y_hat, y, os.path.join(UNET_RESULTS_IMAGES, f'{compute_name(snr, density, t)}'))
+        comparison_pred(x_orig, y, y_hat, os.path.join(UNET_RESULTS_IMAGES, f'{compute_name(snr, density, t)}'))
         # save_slices(preds, UNET_RESULTS_IMAGES, f'{compute_name(snr, density, t)}.png')
 
 
 def main():
     # image settings
-    snr, density, t = SNR.TYPE_7, Density.LOW, 0
+    snr, density, t = SNR.TYPE_7, Density.LOW, 80
 
     # model settings
-    checkpoint_name = 'day_04_06_2023_time_22_58_05.pth.tar'
+    checkpoint_name = sorted(os.listdir(UNET_RESULTS_CHECKPOINTS))[-1]
+    # checkpoint_name = "day_06_06_2023_time_22_25_42.pth.tar"
+    print(checkpoint_name)
     model = UNET(in_channels=DEPTH, out_channels=DEPTH)
     data_model = torch.load(os.path.join(UNET_RESULTS_CHECKPOINTS, checkpoint_name))
     model.load_state_dict(data_model['state_dict'])
