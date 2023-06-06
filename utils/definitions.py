@@ -11,11 +11,11 @@ SIZE = (HIGH, WIDTH, DEPTH)
 TIME_INTERVAL = 100
 
 # Default Hyperparameter
-LEARNING_RATE = 1e-4
+LEARNING_RATE = 1e-3
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 BATCH_SIZE = 8  # 16, 32, 64
 NUM_EPOCHS = 100
-NUM_WORKERS = 16
+NUM_WORKERS = 8
 IMG_HEIGHT = 512
 IMG_WIDTH = 512
 PIN_MEMORY = True
