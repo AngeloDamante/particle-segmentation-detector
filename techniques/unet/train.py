@@ -10,7 +10,8 @@ from preprocessing.Dataset import train_transform, val_transform
 from techniques.unet.net_utils import (
     get_loaders,
     val_fn,
-    save_preds_as_imgs
+    save_preds_as_imgs,
+    CheckpointSaver
 )
 
 from utils.definitions import (
@@ -85,10 +86,11 @@ def main():
     # define train dir
     train_name = datetime.datetime.today().strftime('day_%d_%m_%Y_time_%H_%M_%S')
     os.makedirs(UNET_RESULTS_CHECKPOINTS, exist_ok=True)
+    checkpoint_saver = CheckpointSaver(os.path.join(UNET_RESULTS_CHECKPOINTS, f'{train_name}.pth.tar'))
 
     if LOAD_MODEL:
         print("=> Loading checkpoint")
-        checkpoint_name = os.listdir(UNET_RESULTS_CHECKPOINTS)[-1]
+        checkpoint_name = sorted(os.listdir(UNET_RESULTS_CHECKPOINTS))[-1]
         checkpoint = torch.load(os.path.join(UNET_RESULTS_CHECKPOINTS, checkpoint_name))
         model.load_state_dict(checkpoint["state_dict"])
         val_fn(val_loader, model, loss_fn, device=DEVICE)
@@ -99,16 +101,17 @@ def main():
         print(f'epoch = {epoch}/{NUM_EPOCHS}')
         train_fn(train_loader, model, optimizer, loss_fn, scaler)
 
-        # save model
-        checkpoint = {"state_dict": model.state_dict(), "optimizer": optimizer.state_dict()}
-        print("=> Saving checkpoint")
-        torch.save(checkpoint, os.path.join(UNET_RESULTS_CHECKPOINTS, f'{train_name}.pth.tar'))
+        # # save model
+        # checkpoint = {"state_dict": model.state_dict(), "optimizer": optimizer.state_dict()}
+        # print("=> Saving checkpoint")
+        # torch.save(checkpoint, os.path.join(UNET_RESULTS_CHECKPOINTS, f'{train_name}.pth.tar'))
 
         # validation
-        val_fn(val_loader, model, loss_fn, device=DEVICE)
+        val_loss = val_fn(val_loader, model, loss_fn, device=DEVICE)
+        checkpoint_saver.save_checkpoint(val_loss, model.state_dict(), optimizer.state_dict())
 
-        # save images
-        save_preds_as_imgs(val_loader, model, DTS_ANALYZE_PATH)
+        # save images # FIXME
+        # save_preds_as_imgs(val_loader, model, DTS_ANALYZE_PATH)
 
 
 if __name__ == '__main__':
