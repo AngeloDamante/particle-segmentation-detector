@@ -2,9 +2,12 @@
 
 import torch
 import torch.nn as nn
+import logging
 import torchvision.transforms.functional as TF
 from utils.definitions import DEPTH
+from utils.logger import configure_logger
 
+# configure_logger(logging.INFO)
 
 class DoubleConv(nn.Module):
     def __init__(self, in_channels, out_channels):
@@ -58,39 +61,48 @@ class UNET(nn.Module):
         # we're going down
         for down in self.downs:
             x = down(x)
+            logging.info(x.shape)
             skip_connections.append(x)
             x = self.pool(x)
+            logging.info(x.shape)
 
         # and now we are in the bottom part
         x = self.bottleneck(x)
+        logging.info(x.shape)
         skip_connections = skip_connections[::-1]
 
         # we're going up
         for idx in range(0, len(self.ups)):
             x = self.up_conv[idx](x)
+            logging.info(x.shape)
             skip_connection = skip_connections[idx]
 
             # concatenate
             if x.shape != skip_connection.shape:
                 x = TF.resize(x, size=skip_connection.shape[2:], antialias=False)
+                logging.info(x.shape)
             concat_skip = torch.cat((skip_connection, x), dim=1)
 
             # double conv
             x = self.ups[idx](concat_skip)
+            logging.info(x.shape)
 
         # finally, the last convolution
         return self.final_conv(x)
 
 
-def test():
+def model_proof():
+    model= UNET(in_channels=1, out_channels=2)
+    img = torch.rand((1,1,572,572))
+    print(model(img).shape)
     x = torch.randn((3, DEPTH, 512, 512))
-    model = UNET(in_channels=DEPTH, out_channels=DEPTH)
-    # print(model)
+    # model = UNET(in_channels=DEPTH, out_channels=DEPTH)
+    # # print(model)
     preds = model(x)
-    print(preds.shape)
-    print(x.shape)
+    # print(preds.shape)
+    # print(x.shape)
     assert preds.shape == x.shape
 
 
 if __name__ == "__main__":
-    test()
+    model_proof()
