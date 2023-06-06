@@ -10,7 +10,8 @@ from utils.definitions import DTS_RAW_PATH, DTS_ANALYZE_PATH
 from preprocessing.analyser import (
     extract_particles,
     query_particles,
-    draw_particles
+    draw_particles,
+    save_slices
 )
 
 
@@ -33,7 +34,7 @@ class PreprocessingUT(unittest.TestCase):
         self.assertLess(max([particle.z for particle in my_particles_z0]), 1)
 
     def test_draw_particles(self):
-        data = np.load(get_data_path(SNR.TYPE_7, Density.LOW, t=1, is_npz=True, root=DTS_RAW_PATH), allow_pickle=True)
+        data = np.load(get_data_path(SNR.TYPE_7, Density.HIGH, t=1, is_npz=True, root=DTS_RAW_PATH), allow_pickle=True)
         img_3d = data['img']
         gth = list(data['gth'])
         img_3d_with_particles = draw_particles(img_3d, gth)
@@ -42,6 +43,13 @@ class PreprocessingUT(unittest.TestCase):
             cv2.imwrite(os.path.join(DTS_ANALYZE_PATH, f"slice_{i}.png"), img_3d_with_particles[:, :, i])
         self.assertTrue(gth)
         self.assertEqual(img_3d.shape, img_3d_with_particles.shape)
+
+    def test_save_slices(self):
+        snr, density, t = SNR.TYPE_7, Density.HIGH, 1
+        data = np.load(get_data_path(snr, density, t, is_npz=True, root=DTS_RAW_PATH), allow_pickle=True)
+        img_3d = data['target']
+        self.assertEqual(img_3d.shape, (512, 512, 10))
+        save_slices(img_3d, os.path.join(DTS_ANALYZE_PATH, compute_name(snr, density, t)))
 
 
 if __name__ == '__main__':
