@@ -3,9 +3,13 @@ import os
 import shutil
 import argparse
 import json
+
+import numpy as np
+
 from utils.Types import SNR, Density
+from preprocessing.analyser import comparison_seg
 from utils.logger import configure_logger
-from utils.compute_path import get_data_path
+from utils.compute_path import get_data_path, compute_name
 from preprocessing.creation import make_raw_data
 from utils.definitions import (
     DTS_DIR,
@@ -13,10 +17,12 @@ from utils.definitions import (
     DTS_TEST_PATH,
     DTS_VALIDATION_PATH,
     DTS_RAW_PATH,
+    DTS_ANALYZE_PATH,
     TIME_INTERVAL,
     CONFIG_DIR,
     mapDensity,
-    mapSNR
+    mapSNR,
+    DEPTH
 )
 
 configure_logger(logging.INFO)
@@ -78,7 +84,10 @@ def json_parser(path_file: str):
 def main():
     # parsing
     parser = argparse.ArgumentParser()
-    default_config_file = os.path.join(CONFIG_DIR, 'make_raw_dataset.json')
+    # default_config_file = os.path.join(CONFIG_DIR, 'make_raw_dataset.json')
+    # default_config_file = os.path.join(CONFIG_DIR, 'first_train.json')
+    # default_config_file = os.path.join(CONFIG_DIR, 'high_train.json')
+    default_config_file = os.path.join(CONFIG_DIR, 'make_high_dataset.json')
     parser.add_argument("-C", "--config", type=str, default=default_config_file, help=f"name of config in {CONFIG_DIR}")
     args = parser.parse_args()
     config_file = args.config
@@ -100,7 +109,15 @@ def main():
             snr = mapSNR[dts['snr']]
             density = mapDensity[dts['density']]
             logging.info(f'[ RAW ]: snr = {snr.value},  density = {density.value}')
+            logging.info(f"[ MAKE SEGMENTATION DATASET WITH kernel = {dts['kernel']} and sigma = {dts['sigma']}]")
             make_raw_data(snr, density, dts['kernel'], dts['sigma'], dest_dir=DTS_RAW_PATH)
+
+            if dts['save_slices']:
+                logging.info('[ SAVING SLICES ]')
+                for t in range(DEPTH):
+                    data = np.load(get_data_path(snr, density, t=t, is_npz=True, root=DTS_RAW_PATH))
+                    slices_dir = os.path.join(DTS_ANALYZE_PATH, compute_name(snr, density, t))
+                    comparison_seg(data['img'], data['target'], slices_dir)
 
     # make training dir
     if training_set and train_settings:
@@ -112,7 +129,7 @@ def main():
             snr = mapSNR[tr['snr']]
             density = mapDensity[tr['density']]
             logging.info(f'[ TRAIN ]: snr = {snr.value},  density = {density.value}')
-            split_dataset(snr, density, train_settings['p_split'])
+            split_dataset(snr, density, train_settings['p_split'], is_test=train_settings['is_test'])
 
 
 if __name__ == '__main__':
