@@ -8,8 +8,30 @@ from torch.utils.data import DataLoader
 from utils.definitions import (
     DTS_TEST_PATH,
     DTS_TRAIN_PATH,
-    DTS_VALIDATION_PATH
+    DTS_VALIDATION_PATH,
+    DEPTH
 )
+
+
+class CheckpointSaver:
+    def __init__(self, file_name: str):
+        self.file_name = file_name
+        self.loss_value = None
+
+    def save_checkpoint(self, loss_value: float, dict_model, dict_opt):
+        """Save Checkpoints
+
+        :param loss_value:
+        :param dict_model:
+        :param dict_opt:
+        :return:
+        """
+        if self.loss_value is None: self.loss_value = loss_value
+        if self.loss_value > loss_value:
+            print("=> Saving checkpoint")
+            checkpoint = {"state_dict": dict_model, "optimizer": dict_opt}
+            torch.save(checkpoint, self.file_name)
+            self.loss_value = loss_value
 
 
 def get_loaders(train_path, val_path, batch_size, train_transforms, val_transforms, num_workers, pin_memory):
@@ -43,7 +65,7 @@ def get_loaders(train_path, val_path, batch_size, train_transforms, val_transfor
     return train_dtl, val_dtl
 
 
-def val_fn(loader, model, loss, device="cuda"):
+def val_fn(loader, model, loss, device="cuda") -> float:
     """ Validate Function
 
     :param loader:
@@ -78,15 +100,19 @@ def val_fn(loader, model, loss, device="cuda"):
 
     # switch to train mode
     model.train()
+    return val_loss / len(loader)
 
 
-def save_preds_as_imgs(loader, model, folder, device="cuda"):
+def save_preds_as_imgs(loader, model, folder, device="cuda"):  # FIXME
     model.eval()
     for idx, data in enumerate(loader):
         x = data['img'].to(device)
         y = data['target'].to(device)
         with torch.no_grad():
-            preds = torch.sigmoid(model(x))  # FIXME (1,1,10)
-        torchvision.utils.save_image(preds, os.path.join(folder, f'pred_{idx}.png'))
-        torchvision.utils.save_image(y.unsqueeze(1), f"{folder}{idx}.png")
+            preds = torch.sigmoid(model(x))
+        for batch_id in range(x.shape[0]):
+            my_preds = preds[batch_id, :, :, :].unsqueeze(1)
+            my_target = y[batch_id, :, :, :].unsqueeze(1)
+            torchvision.utils.save_image(my_preds, os.path.join(folder, f'pred_{idx}.png'), nrow=5)
+            torchvision.utils.save_image(my_target, f"{folder}{idx}.png", nrow=5)
     model.train()
