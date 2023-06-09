@@ -5,21 +5,21 @@ from pathlib import Path
 from utils.Types import SNR, Density
 import torch
 
-# sequence values
+# dataset values
 HIGH, WIDTH, DEPTH = 512, 512, 10
 SIZE = (HIGH, WIDTH, DEPTH)
 TIME_INTERVAL = 100
+KERNEL = 7
+SIGMA = 1.5
 
 # Default Hyperparameter
 LEARNING_RATE = 1e-3
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 BATCH_SIZE = 8  # 16, 32, 64
-NUM_EPOCHS = 100
+NUM_EPOCHS = 200
 NUM_WORKERS = 8
-IMG_HEIGHT = 512
-IMG_WIDTH = 512
 PIN_MEMORY = True
-LOAD_MODEL = False
+LOAD_MODEL = True
 
 # main dirs
 ROOT_DIR = Path(__file__).absolute().parent.parent
@@ -38,11 +38,12 @@ DTS_TEST_PATH = os.path.join(DTS_DIR, "Test")
 DTS_VALIDATION_PATH = os.path.join(DTS_DIR, "Validation")
 DTS_ANALYZE_PATH = os.path.join(DTS_DIR, "Analyze")
 
-# NET
-UNET_PATH = os.path.join(ROOT_DIR, "techniques", "unet")
-UNET_RESULTS_PATH = os.path.join(UNET_PATH, "Results")
-UNET_RESULTS_IMAGES = os.path.join(UNET_RESULTS_PATH, "Images")
-UNET_RESULTS_CHECKPOINTS = os.path.join(UNET_RESULTS_PATH, "Checkpoints")
+# net comparison
+RESULTS_PATH = os.path.join(ROOT_DIR, "Results")
+RESULTS_UNET_CHECKPOINT = os.path.join(RESULTS_PATH, "Unet", "Checkpoints")
+RESULTS_UNET_IMAGES = os.path.join(RESULTS_PATH, "Unet", "Images")
+RESULTS_VIT_CHECKPOINT = os.path.join(RESULTS_PATH, "Unet", "Checkpoints")
+RESULTS_VIT_IMAGES = os.path.join(RESULTS_PATH, "Unet", "Images")
 
 # dict to parsing
 mapSNR = {'snr_1': SNR.TYPE_1, 'snr_2': SNR.TYPE_2, 'snr_4': SNR.TYPE_4, 'snr_7': SNR.TYPE_7}
