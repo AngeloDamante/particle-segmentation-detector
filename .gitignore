@@ -131,7 +131,7 @@ cython_debug/
 
 # Our Project
 /Dataset/*
-!Dataset/install_dataset.py
+!note.txt
 
 # unet
 techniques/unet/Results/
