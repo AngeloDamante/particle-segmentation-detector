@@ -1,4 +1,5 @@
 """Utility functions for processing phase"""
+import math
 
 import torch
 import os
@@ -17,7 +18,7 @@ class CheckpointSaver:
         :return:
         """
         return self.file_name
-    
+
     def set_file_name(self, file_name):
         """Change file_name
 
@@ -41,6 +42,7 @@ class CheckpointSaver:
         :param dict_opt:
         :return:
         """
+        if math.isnan(loss_value): return
         if self.loss_value is None: self.loss_value = loss_value
         if self.loss_value > loss_value:
             print("=> Saving checkpoint")
