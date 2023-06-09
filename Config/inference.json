@@ -1,0 +1,10 @@
+{
+  "model": "unet",
+  "params": "dodo.pth.tar",
+  "dataset": [
+    {
+      "snr": "snr_7",
+      "density": "density_low"
+    }
+  ]
+}
