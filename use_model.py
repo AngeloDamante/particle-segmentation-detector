@@ -7,6 +7,7 @@ import logging
 import argparse
 from processing.functions import inference
 from models.unet import UNET
+from models.vit import SegFormer
 from utils.logger import configure_logger
 from utils.json_parser import json_parser_inference
 from utils.definitions import (
@@ -15,6 +16,8 @@ from utils.definitions import (
     DEVICE,
     RESULTS_UNET_CHECKPOINT,
     RESULTS_UNET_IMAGES,
+    RESULTS_VIT_CHECKPOINT,
+    RESULTS_VIT_IMAGES,
     TIME_INTERVAL,
     mapSNR,
     mapDensity
@@ -26,7 +29,7 @@ configure_logger(logging.INFO)
 def main():
     # parsing
     parser = argparse.ArgumentParser()
-    default_config_file = 'inference.json'
+    default_config_file = 'inference_vit.json'
     parser.add_argument("-C", "--config", type=str, default=default_config_file, help=f"name of config in {CONFIG_DIR}")
     args = parser.parse_args()
     config_file = os.path.join(CONFIG_DIR, args.config)
@@ -45,7 +48,22 @@ def main():
         net_model.load_state_dict(checkpoint['state_dict'])
         img_dir = RESULTS_UNET_IMAGES
     elif model == "vit":
-        pass  # TODO
+        net_model = SegFormer(
+            in_channels=10,
+            widths=[64, 128, 256, 512],
+            depths=[3, 4, 6, 3],
+            all_num_heads=[1, 2, 4, 8],
+            patch_size=[7, 3, 3, 3],
+            overlap_sizes=[4, 2, 2, 2],
+            reduction_ratios=[8, 4, 2, 1],
+            mlp_expansions=[4, 4, 4, 4],
+            decoder_channels=256,
+            scale_factors=[8, 4, 2, 1],
+            out_channels=10
+        ).to(DEVICE)
+        checkpoint = torch.load(os.path.join(RESULTS_VIT_CHECKPOINT, params))
+        net_model.load_state_dict(checkpoint['state_dict'])
+        img_dir = RESULTS_VIT_IMAGES
 
     # inference
     logging.info("[ INFERENCE STARTING ]")

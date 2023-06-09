@@ -8,6 +8,7 @@ import torch.cuda
 import torch.nn as nn
 import torch.optim as optim
 from models.unet import UNET
+from models.vit import SegFormer
 from preprocessing.Dataset import train_transform, val_transform
 from processing.utilities import get_loaders, CheckpointSaver
 from processing.functions import train_fn, val_fn
@@ -73,7 +74,8 @@ def split_dataset(snr: SNR, density: Density, p_train: int = 80, is_test=False):
 def main():
     # parsing
     parser = argparse.ArgumentParser()
-    default_config_file = 'snr_7_density_low_train.json'
+    # default_config_file = 'snr_7_density_low_train.json'
+    default_config_file = 'snr_7_density_low_train_vit.json'
     parser.add_argument("-C", "--config", type=str, default=default_config_file, help=f"name of config in {CONFIG_DIR}")
     args = parser.parse_args()
     config_file = os.path.join(CONFIG_DIR, args.config)
@@ -104,8 +106,21 @@ def main():
         os.makedirs(RESULTS_UNET_CHECKPOINT, exist_ok=True)
         checkpoint_saver.set_file_name(os.path.join(RESULTS_UNET_CHECKPOINT, f'{train_name}.pth.tar'))
     elif settings['model'] == 'vit':
-        # TODO
-        pass
+        os.makedirs(RESULTS_VIT_CHECKPOINT, exist_ok=True)
+        checkpoint_saver.set_file_name(os.path.join(RESULTS_VIT_CHECKPOINT, f'{train_name}.pth.tar'))
+        model = SegFormer(
+            in_channels=10,
+            widths=[64, 128, 256, 512],
+            depths=[3, 4, 6, 3],
+            all_num_heads=[1, 2, 4, 8],
+            patch_size=[7, 3, 3, 3],
+            overlap_sizes=[4, 2, 2, 2],
+            reduction_ratios=[8, 4, 2, 1],
+            mlp_expansions=[4, 4, 4, 4],
+            decoder_channels=256,
+            scale_factors=[8, 4, 2, 1],
+            out_channels=10
+        ).to(DEVICE)
 
     # define all elements for training
     loss_fn = nn.BCEWithLogitsLoss()

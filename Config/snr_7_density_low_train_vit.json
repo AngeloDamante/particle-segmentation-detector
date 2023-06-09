@@ -1,0 +1,21 @@
+{
+  "settings": {
+    "training_name": "snr_7_density_low_train_vit",
+    "model": "vit",
+    "p_split": 80
+  },
+  "training_dts": [
+    {
+      "snr": "snr_7",
+      "density": "density_low"
+    }
+  ],
+  "hyperparameters": {
+    "lr": 1e-5,
+    "batch": 8,
+    "num_epochs": 200,
+    "num_workers": 8,
+    "pin_memory": true,
+    "load_model": false
+  }
+}
