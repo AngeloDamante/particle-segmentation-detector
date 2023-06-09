@@ -69,8 +69,10 @@ def comparison_pred(x: np.ndarray, y: np.ndarray, y_hat: np.ndarray, save_dir: s
     """
     os.makedirs(save_dir, exist_ok=True)
     for z in range(x.shape[2]):
-        cmp_img = np.hstack((x[:, :, z], y[:, :, z], y_hat[:, :, z]))
+        divider = np.ones((x.shape[0], 3)) * 255
+        cmp_img = np.hstack((x[:, :, z], divider, y[:, :, z], divider, y_hat[:, :, z]))
         cv2.imwrite(os.path.join(save_dir, f'{str(z).zfill(3)}.png'), cmp_img)  # FIXME
+
 
 def comparison_seg(x: np.ndarray, y: np.ndarray, save_dir: str):
     """Comparison viewer between x and y
