@@ -13,9 +13,9 @@
   "hyperparameters": {
     "lr": 1e-5,
     "batch": 8,
-    "num_epochs": 200,
+    "num_epochs": 1500,
     "num_workers": 8,
     "pin_memory": true,
-    "load_model": false
+    "load_model": true
   }
 }
