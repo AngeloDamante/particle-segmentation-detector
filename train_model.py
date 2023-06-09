@@ -73,7 +73,7 @@ def split_dataset(snr: SNR, density: Density, p_train: int = 80, is_test=False):
 def main():
     # parsing
     parser = argparse.ArgumentParser()
-    default_config_file = 'foo.json'
+    default_config_file = 'snr_7_density_low_train.json'
     parser.add_argument("-C", "--config", type=str, default=default_config_file, help=f"name of config in {CONFIG_DIR}")
     args = parser.parse_args()
     config_file = os.path.join(CONFIG_DIR, args.config)
@@ -125,6 +125,7 @@ def main():
 
     # load model only if is present
     if hyperparameters['load_model'] and checkpoint_saver.is_present():
+        logging.info(f'[ LOAD MODEL {checkpoint_saver.get_file_name()}]')
         print("=> Loading checkpoint")
         checkpoint = torch.load(checkpoint_saver.get_file_name())
         model.load_state_dict(checkpoint["state_dict"])
@@ -134,7 +135,7 @@ def main():
     logging.info('[ TRAINING STARTED ]')
     num_epochs = hyperparameters['num_epochs']
     for epoch in range(num_epochs):
-        print(f'epoch = {epoch}/{num_epochs}')
+        print(f'----------------------------------------> epoch = {epoch + 1}/{num_epochs}')
         # train
         train_fn(train_loader, model, optimizer, loss_fn, scaler)
 
