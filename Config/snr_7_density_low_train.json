@@ -1,6 +1,6 @@
 {
   "settings": {
-    "training_name": "dodo",
+    "training_name": "snr_7_density_low_train",
     "model": "unet",
     "p_split": 80
   },

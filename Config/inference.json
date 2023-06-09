@@ -1,6 +1,6 @@
 {
   "model": "unet",
-  "params": "dodo.pth.tar",
+  "params": "snr_7_density_low_train.pth.tar",
   "dataset": [
     {
       "snr": "snr_7",
