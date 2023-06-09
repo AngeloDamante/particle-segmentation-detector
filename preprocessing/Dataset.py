@@ -47,7 +47,7 @@ train_transform = CustomCompose([
     CustomToTensor(),
     CustomHorizontalFlip(p=0.5),
     CustomVerticalFlip(p=0.5)
-])  # TODO normalize!
+])
 
 val_transform = CustomToTensor()
 

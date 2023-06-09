@@ -71,7 +71,7 @@ def comparison_pred(x: np.ndarray, y: np.ndarray, y_hat: np.ndarray, save_dir: s
     for z in range(x.shape[2]):
         divider = np.ones((x.shape[0], 3)) * 255
         cmp_img = np.hstack((x[:, :, z], divider, y[:, :, z], divider, y_hat[:, :, z]))
-        cv2.imwrite(os.path.join(save_dir, f'{str(z).zfill(3)}.png'), cmp_img)  # FIXME
+        cv2.imwrite(os.path.join(save_dir, f'{str(z).zfill(3)}.png'), cmp_img)  
 
 
 def comparison_seg(x: np.ndarray, y: np.ndarray, save_dir: str):
@@ -86,7 +86,7 @@ def comparison_seg(x: np.ndarray, y: np.ndarray, save_dir: str):
     for z in range(x.shape[2]):
         divider = np.ones((x.shape[0], 3)) * 255
         cmp_img = np.hstack((x[:, :, z], divider, y[:, :, z]))
-        cv2.imwrite(os.path.join(save_dir, f'{str(z).zfill(3)}.png'), cmp_img.astype(np.uint8))  # FIXME
+        cv2.imwrite(os.path.join(save_dir, f'{str(z).zfill(3)}.png'), cmp_img.astype(np.uint8))
 
 
 def save_slices(img_3d: np.ndarray, save_dir: str, img_name: str = None):
