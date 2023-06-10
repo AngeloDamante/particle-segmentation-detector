@@ -40,10 +40,7 @@ DTS_ANALYZE_PATH = os.path.join(DTS_DIR, "Analyze")
 
 # net comparison
 RESULTS_PATH = os.path.join(ROOT_DIR, "Results")
-RESULTS_UNET_CHECKPOINT = os.path.join(RESULTS_PATH, "Unet", "Checkpoints")
-RESULTS_UNET_IMAGES = os.path.join(RESULTS_PATH, "Unet", "Images")
-RESULTS_VIT_CHECKPOINT = os.path.join(RESULTS_PATH, "Vit", "Checkpoints")
-RESULTS_VIT_IMAGES = os.path.join(RESULTS_PATH, "Vit", "Images")
+EXPERIMENTS_PATH = os.path.join(ROOT_DIR, "Experiments")
 
 # dict to parsing
 mapSNR = {'snr_1': SNR.TYPE_1, 'snr_2': SNR.TYPE_2, 'snr_4': SNR.TYPE_4, 'snr_7': SNR.TYPE_7}

@@ -3,7 +3,6 @@
 utils
     ├── compute_path.py         -> path for slice and data with snr and density
     ├── definitions.py          -> all definitions for PATH and Hyperparameters
-    ├── json_parser.py          -> define json parser for train and inference
     ├── logger.py               -> simple python logger
     └── Types.py                -> define Particle class and maps
 """
