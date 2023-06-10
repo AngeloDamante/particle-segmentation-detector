@@ -4,6 +4,7 @@ import os
 import torch
 from tqdm import tqdm
 import numpy as np
+from typing import Tuple
 from utils.definitions import DEVICE
 from preprocessing.analyser import comparison_pred
 from utils.Types import SNR, Density
@@ -11,7 +12,22 @@ from utils.compute_path import get_data_path, compute_name
 from utils.definitions import DTS_RAW_PATH
 
 
-def train_fn(loader, model, optimizer, loss_fn, scaler):
+def compute_dice_score(target: torch.Tensor, preds: torch.Tensor, threshold: float) -> float:
+    """Compute dice score for binary mask
+
+        (2*TP) / (2*TP - FP - FN)
+
+    :param target:
+    :param preds:
+    :param threshold:
+    :return:
+    """
+    preds_bin = (preds > threshold).type(torch.uint8)
+    y_bin = (target > threshold).type(torch.uint8)
+    return (2 * (preds_bin * y_bin).sum()) / ((preds_bin + y_bin).sum() + 1e-8)
+
+
+def train_fn(loader, model, optimizer, loss_fn, scaler) -> float:
     """Function for training
 
     :param loader:
@@ -40,9 +56,10 @@ def train_fn(loader, model, optimizer, loss_fn, scaler):
 
         # update tqdm loop
         pbar.set_description(f"Processing {batch_idx + 1}/{len(loader)}, train_loss = {loss.item():.5f}")
+    return loss
 
 
-def val_fn(loader, model, loss, device="cuda") -> float:
+def val_fn(loader, model, loss, device="cuda") -> Tuple[float, float]:
     """ Validate Function
 
     :param loader:
@@ -53,10 +70,9 @@ def val_fn(loader, model, loss, device="cuda") -> float:
     """
     dice_score = 0.0
     val_loss = 0.0
+    threshold = 0.3
 
-    # switch to evaluation mode
-    model.eval()
-
+    model.eval() # switch to evaluation mode
     with torch.no_grad(), torch.cuda.amp.autocast():
         for data in loader:
             x = data['img'].to(device)
@@ -66,20 +82,17 @@ def val_fn(loader, model, loss, device="cuda") -> float:
             val_loss += loss(preds, y).item()
             preds = torch.sigmoid(preds)
 
-            # IoU equivalent for segmentation
-            # TODO serve qualcosa per verificare che le particelle trovate siano quelle della gth
-            dice_score += (2 * (preds * y).sum()) / ((preds + y).sum() + 1e-8)
+            dice_score += compute_dice_score(y, preds, threshold)
 
         print(f'val loss: {(val_loss / len(loader)):.5f}')
         print(f"Dice score: {(dice_score / len(loader)):.5f}")
 
-    # switch to train mode
-    model.train()
-    return val_loss / len(loader)
+    model.train() # switch to train mode
+    return val_loss / len(loader), (dice_score / len(loader))
 
 
-def inference(model: torch.nn.Module, snr: SNR, density: Density, t: int, save_dir: str):
-    """To make inference about data
+def inference_fn(model: torch.nn.Module, snr: SNR, density: Density, t: int, save_dir: str):
+    """To make inference about data, in other words, use model
 
     :param model:
     :param snr:
