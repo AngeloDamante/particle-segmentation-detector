@@ -4,8 +4,6 @@ import os
 import cv2
 from typing import List, Callable
 import numpy as np
-import torch
-import torchvision
 import xml.etree.ElementTree as ET
 from utils.Types import Particle
 
@@ -71,7 +69,7 @@ def comparison_pred(x: np.ndarray, y: np.ndarray, y_hat: np.ndarray, save_dir: s
     for z in range(x.shape[2]):
         divider = np.ones((x.shape[0], 3)) * 255
         cmp_img = np.hstack((x[:, :, z], divider, y[:, :, z], divider, y_hat[:, :, z]))
-        cv2.imwrite(os.path.join(save_dir, f'{str(z).zfill(3)}.png'), cmp_img)  
+        cv2.imwrite(os.path.join(save_dir, f'z_{str(z).zfill(3)}.png'), cmp_img)
 
 
 def comparison_seg(x: np.ndarray, y: np.ndarray, save_dir: str):
