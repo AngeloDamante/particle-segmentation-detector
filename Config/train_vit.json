@@ -1,7 +1,7 @@
 {
   "settings": {
-    "training_name": "foo",
-    "model": "unet",
+    "training_name": "vit_snr_7_low",
+    "model": "vit",
     "p_split": 80
   },
   "training_dts": [
@@ -11,9 +11,9 @@
     }
   ],
   "hyperparameters": {
-    "lr": 1e-3,
+    "lr": 1e-5,
     "batch": 8,
-    "num_epochs": 200,
+    "num_epochs": 2000,
     "num_workers": 8,
     "pin_memory": true,
     "load_model": true

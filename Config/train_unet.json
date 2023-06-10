@@ -1,6 +1,6 @@
 {
   "settings": {
-    "training_name": "snr_7_density_low_train",
+    "training_name": "unet_snr_7_low",
     "model": "unet",
     "p_split": 80
   },
