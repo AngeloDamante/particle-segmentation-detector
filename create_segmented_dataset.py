@@ -1,7 +1,8 @@
 """Run this script to create segmented dataset"""
 
-import logging
 import os
+import logging
+import argparse
 import numpy as np
 from preprocessing.analyser import comparison_seg
 from utils.logger import configure_logger
@@ -21,11 +22,20 @@ configure_logger(logging.INFO)
 
 
 def main():
+    # parsing
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-K", "--kernel", type=int, default=KERNEL, help="kernel size for gaussian convolution")
+    parser.add_argument("-S", "--sigma", type=float, default=SIGMA, help="sigma value for gaussian convolution")
+    args = parser.parse_args()
+    kernel = args.kernel
+    sigma = args.sigma
+
+    # dts creation
     logging.info('[ CREATING RAW DATASET ]')
     for snr in mapSNR.values():
         for density in mapDensity.values():
             logging.info(f'processing: snr = {snr.value}, density = {density.value}')
-            make_raw_data(snr, density, KERNEL, SIGMA, dest_dir=DTS_RAW_PATH)
+            make_raw_data(snr, density, kernel, sigma, dest_dir=DTS_RAW_PATH)
     logging.info('[ DONE ]')
 
     logging.info(f'[ SAVING SLICES IN  {DTS_ANALYZE_PATH}]')
