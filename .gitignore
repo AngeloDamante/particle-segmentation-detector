@@ -131,10 +131,14 @@ cython_debug/
 
 # Our Project
 /Dataset/*
-!note.txt
+!Dataset/note.txt
 
 # unet
-techniques/unet/Results/
+#**/Experiments/*
+/Experiments/*
+!Experiments/note.txt
+
+#!Experiments/note.txt
 
 # ut
 /ut/*.png
@@ -143,3 +147,4 @@ techniques/unet/Results/
 *.tar
 *.xz
 *.gz
+
