@@ -1,6 +1,6 @@
 {
   "settings": {
-    "training_name": "vit_snr_7_low",
+    "training_name": "vit_snr_7_mid",
     "model": "vit",
     "p_split": 80
   },
@@ -8,6 +8,10 @@
     {
       "snr": "snr_7",
       "density": "density_low"
+    },
+    {
+      "snr": "snr_7",
+      "density": "density_mid"
     }
   ],
   "hyperparameters": {
