@@ -143,6 +143,9 @@ cython_debug/
 # ut
 /ut/*.png
 
+# ui
+*.ui
+
 # archives
 *.tar
 *.xz
