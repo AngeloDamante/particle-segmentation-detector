@@ -92,6 +92,7 @@ def main():
     parser = argparse.ArgumentParser()
     default_config_file = os.path.join(CONFIG_DIR, 'train_unet.json')
     parser.add_argument("-C", "--config", type=str, default=default_config_file, help="absolute path of config file")
+    parser.add_argument("-G", "--gpu", type=str, default=DEVICE, help="cpu, cuda:0, cuda:1")
     args = parser.parse_args()
     config_file = args.config
 
