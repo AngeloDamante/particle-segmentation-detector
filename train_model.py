@@ -96,7 +96,7 @@ def main():
 
     # extracting settings
     logging.info('[ EXTRACTING JSON DATA ]')
-    settings, training_dts, hyperparameters = json_parser_train(config_file)
+    settings, training_dts, hyperparameters = json_parser(config_file)
     train_name = settings['training_name']
     p_split = settings['p_split']
     experiment_dir = os.path.join(EXPERIMENTS_PATH, train_name)
