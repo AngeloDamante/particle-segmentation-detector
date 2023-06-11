@@ -1,1 +1,0 @@
-"""Blod detector class"""
