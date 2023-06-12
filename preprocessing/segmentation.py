@@ -50,6 +50,5 @@ def gauss_conv(img_3d: np.ndarray, particles: List[Particle], kernel: int, sigma
     filtered = signal.convolve(img_3d, kernel, mode="same")
     filtered_mirror = np.rot90(filtered, k=1, axes=(0, 1))
     filtered = np.flipud(filtered_mirror)
-    filtered = np.resize(filtered, (512, 512, 10))
     filtered = np.clip(filtered, 0, 255).astype(np.uint8)
     return filtered
