@@ -15,7 +15,8 @@ from utils.definitions import (
     mapSNR,
     DEPTH,
     KERNEL,
-    SIGMA
+    SIGMA,
+    TIME_INTERVAL
 )
 
 configure_logger(logging.INFO)
@@ -41,7 +42,7 @@ def main():
     logging.info(f'[ SAVING SLICES IN  {DTS_ANALYZE_PATH}]')
     for snr in mapSNR.values():
         for density in mapDensity.values():
-            for t in range(DEPTH):
+            for t in range(TIME_INTERVAL):
                 data = np.load(get_data_path(snr, density, t=t, is_npz=True, root=DTS_RAW_PATH))
                 slices_dir = os.path.join(DTS_ANALYZE_PATH, compute_name(snr, density, t))
                 comparison_seg(data['img'], data['target'], save_dir=slices_dir)
