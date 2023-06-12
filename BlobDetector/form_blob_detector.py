@@ -49,7 +49,7 @@ class Ui_MainWindow(object):
         with torch.no_grad():
             y = torch.sigmoid(self.model(_x))
             y = torch.permute(y.squeeze(0), (1, 2, 0)).numpy() * 255
-        self.input_image = x
+        self.input_image = data['target']
         self.output_image = y.astype(np.uint8)
 
     def print_image(self, image, is_3d=True):
@@ -98,8 +98,8 @@ class Ui_MainWindow(object):
 
         if self.blob_filter_inertia_box.isChecked():
             self.blob_detector_params.filterByInertia = self.blob_filter_inertia_box.isChecked()
-            self.blob_detector_params.minInertiaRatio = float(self.blob_min_inertia.text())
-            self.blob_detector_params.maxInertiaRatio = float(self.blob_max_inertia.text())
+            self.blob_detector_params.minInertiaRatio = float(self.blob_min_inertia.text()) + 0.1
+            self.blob_detector_params.maxInertiaRatio = float(self.blob_max_inertia.text()) + 0.1
 
         if self.blob_filter_color_box.isChecked():
             self.blob_detector_params.filterByColor = self.blob_filter_color_box.isChecked()
@@ -108,10 +108,21 @@ class Ui_MainWindow(object):
         # enable blobber
         detector = cv2.SimpleBlobDetector_create(self.blob_detector_params)
         z = int(self.z_comboBox.currentText())
-        keypoints = detector.detect(self.output_image[:, :, z].astype(np.uint8))
-        img_with_keypoints = cv2.drawKeypoints(self.output_image[:, :, z], keypoints, np.array([]), (255, 0, 0),
-                                               cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-        self.output_slice.setPixmap(self.print_image(img_with_keypoints, is_3d=False))
+
+        # input computing
+        keypoints_in = detector.detect(self.input_image[:, :, z].astype(np.uint8))
+        input_with_keypoints = cv2.drawKeypoints(self.input_image[:, :, z], keypoints_in, np.array([]), (255, 0, 0), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+
+        # output computing
+        keypoints_out = detector.detect(self.output_image[:, :, z].astype(np.uint8))
+        output_with_keypoints = cv2.drawKeypoints(self.output_image[:, :, z], keypoints_out, np.array([]), (255, 0, 0), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+
+        for x in range(1, len(keypoints_in)):
+            output_with_keypoints = cv2.circle(output_with_keypoints, (int(keypoints_in[x].pt[0]), int(keypoints_in[x].pt[1])), radius=3, color=(255,255,0), thickness=-1)
+
+        # view
+        self.input_slice.setPixmap(self.print_image(input_with_keypoints, is_3d=False))
+        self.output_slice.setPixmap(self.print_image(output_with_keypoints, is_3d=False))
 
     def create_model(self):
         """Create Model routine
@@ -196,6 +207,7 @@ class Ui_MainWindow(object):
         else:
             self.blob_button.setStyleSheet("background-color : red")
             self.output_slice.setPixmap(self.print_image(self.output_image))
+            self.input_slice.setPixmap(self.print_image(self.input_image))
         self.set_blobber_params()
 
     def setupUi(self, MainWindow):
@@ -465,11 +477,11 @@ class Ui_MainWindow(object):
         # set default values for blob
         self.blob_min_circularity.setText(str(0.1))
         self.blob_max_circularity.setText(str(1.0))
-        self.blob_min_convexity.setText(str(0.0))
+        self.blob_min_convexity.setText(str(0.1))
         self.blob_max_convexity.setText(str(1.0))
         self.blob_min_area.setText(str(5))
         self.blob_max_area.setText(str(49))
-        self.blob_min_inertia.setText(str(0.0))
+        self.blob_min_inertia.setText(str(0.1))
         self.blob_max_inertia.setText(str(1.0))
         self.blob_blob_color.setText(str(255))
 
