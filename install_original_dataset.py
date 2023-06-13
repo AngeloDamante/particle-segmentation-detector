@@ -17,7 +17,7 @@ configure_logger(log_lvl=logging.INFO)
 
 ARCHIVE_NAME = 'Challenge_dts.tar.xz'
 ARCHIVE_PATH = os.path.join(DTS_DIR, ARCHIVE_NAME)
-ARCHIVE_LINK = 'https://github.com/AngeloDamante/particle-ViT-segmentation/releases/download/v1.0/Challenge_dts.tar.xz'
+ARCHIVE_LINK = 'https://github.com/AngeloDamante/particle-segmentation-detector/releases/download/v1.0/Challenge_dts.tar.xz'
 
 # installation phase
 logging.info("Install Original Dataset")
