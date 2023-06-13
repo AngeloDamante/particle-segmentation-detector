@@ -1,5 +1,5 @@
 """UI for Blob Detector"""
-
+import logging
 import os
 import torch
 import torch.nn as nn
@@ -77,32 +77,32 @@ class Ui_MainWindow(object):
         :return:
         """
         if not self.blob_activate: return
-
+        print("[ BLOB DETECTOR SETTED ]")
         self.blob_detector_params.minThreshold = int(self.blob_min_threshold.text())
         self.blob_detector_params.maxThreshold = int(self.blob_max_threshold.text())
 
+        self.blob_detector_params.filterByCircularity = self.blob_filter_circularity_box.isChecked()
         if self.blob_filter_circularity_box.isChecked():
-            self.blob_detector_params.filterByCircularity = self.blob_filter_circularity_box.isChecked()
             self.blob_detector_params.minCircularity = float(self.blob_min_circularity.text())
             self.blob_detector_params.maxCircularity = float(self.blob_max_circularity.text())
 
+        self.blob_detector_params.filterByConvexity = self.blob_filter_convexity_box.isChecked()
         if self.blob_filter_convexity_box.isChecked():
-            self.blob_detector_params.filterByConvexity = self.blob_filter_convexity_box.isChecked()
             self.blob_detector_params.minConvexity = float(self.blob_min_convexity.text())
             self.blob_detector_params.maxConvexity = float(self.blob_max_convexity.text())
 
+        self.blob_detector_params.filterByArea = self.blob_filter_area_box.isChecked()
         if self.blob_filter_area_box.isChecked():
-            self.blob_detector_params.filterByArea = self.blob_filter_area_box.isChecked()
             self.blob_detector_params.minArea = float(self.blob_min_area.text())
             self.blob_detector_params.maxArea = float(self.blob_max_area.text())
 
+        self.blob_detector_params.filterByInertia = self.blob_filter_inertia_box.isChecked()
         if self.blob_filter_inertia_box.isChecked():
-            self.blob_detector_params.filterByInertia = self.blob_filter_inertia_box.isChecked()
             self.blob_detector_params.minInertiaRatio = float(self.blob_min_inertia.text()) + 0.1
             self.blob_detector_params.maxInertiaRatio = float(self.blob_max_inertia.text()) + 0.1
 
+        self.blob_detector_params.filterByColor = self.blob_filter_color_box.isChecked()
         if self.blob_filter_color_box.isChecked():
-            self.blob_detector_params.filterByColor = self.blob_filter_color_box.isChecked()
             self.blob_detector_params.blobColor = int(self.blob_blob_color.text())
 
         # enable blobber
@@ -111,14 +111,30 @@ class Ui_MainWindow(object):
 
         # input computing
         keypoints_in = detector.detect(self.input_image[:, :, z].astype(np.uint8))
-        input_with_keypoints = cv2.drawKeypoints(self.input_image[:, :, z], keypoints_in, np.array([]), (255, 0, 0), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+        keypoints_in = [(round(key.pt[0]), round(key.pt[1])) for key in keypoints_in]
+        print(f'[ {len(keypoints_in)} DETECTED FOR INPUT ]')
+        input_with_keypoints = cv2.cvtColor(self.input_image[:, :, z].astype(np.uint8), cv2.COLOR_GRAY2RGB)
+        for p in keypoints_in:
+            input_with_keypoints = cv2.circle(input_with_keypoints, (p[0], p[1]), radius=3, color=(255,0,0), thickness=-1)
 
         # output computing
         keypoints_out = detector.detect(self.output_image[:, :, z].astype(np.uint8))
-        output_with_keypoints = cv2.drawKeypoints(self.output_image[:, :, z], keypoints_out, np.array([]), (255, 0, 0), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+        keypoints_out = [(round(key.pt[0]), round(key.pt[1])) for key in keypoints_out]
+        print(f'[ {len(keypoints_out)} DETECTED FOR OUTPUT ]')
+        output_with_keypoints = cv2.cvtColor(self.output_image[:, :, z].astype(np.uint8), cv2.COLOR_GRAY2RGB)
+        for p in keypoints_out:
+            output_with_keypoints = cv2.circle(output_with_keypoints, (p[0], p[1]), radius=3, color=(255,0,0), thickness=-1)
 
-        for x in range(1, len(keypoints_in)):
-            output_with_keypoints = cv2.circle(output_with_keypoints, (int(keypoints_in[x].pt[0]), int(keypoints_in[x].pt[1])), radius=3, color=(255,255,0), thickness=-1)
+        # noise
+        input_points = set(keypoints_in)
+        output_points = set(keypoints_out)
+        noise_points = input_points.intersection(output_points)
+        total_point = input_points.union(output_points)
+        noise_keys = list(total_point - noise_points)
+
+        print(f'[ {len(noise_keys)} FALSE POSITIVE DETECTED ]')
+        for p in noise_keys:
+            output_with_keypoints = cv2.circle(output_with_keypoints, (p[0], p[1]), radius=3, color=(255,255,0), thickness=-1)
 
         # view
         self.input_slice.setPixmap(self.print_image(input_with_keypoints, is_3d=False))
