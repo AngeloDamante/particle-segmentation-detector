@@ -132,7 +132,7 @@ class Ui_MainWindow(object):
         total_point = input_points.union(output_points)
         noise_keys = list(total_point - noise_points)
 
-        print(f'[ {len(noise_keys)} FALSE POSITIVE DETECTED ]')
+        print(f'[ {len(noise_keys)} NOISE POINTS DETECTED ]')
         for p in noise_keys:
             output_with_keypoints = cv2.circle(output_with_keypoints, (p[0], p[1]), radius=3, color=(255,255,0), thickness=-1)
 
